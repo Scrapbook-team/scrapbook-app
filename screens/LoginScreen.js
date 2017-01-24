@@ -29,23 +29,23 @@ export default class LoginScreen extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-            <Text
-                Scrapbook
-            />
-            <TextInput
-                style={styles.textField}
-                placeholder="Email"
-            />
-            <TextInput
-                style={styles.textField}
-                placeholder="Password"
-                secureTextEntry={true}
-            />
-            <Button
-                onPress={this.loginUser}
-                title="Login"
-                color="#841584"
-            />
+              <Text>
+                  Scrapbook
+              </Text>
+              <TextInput
+                  style={styles.textField}
+                  placeholder="Email"
+              />
+              <TextInput
+                  style={styles.textField}
+                  placeholder="Password"
+                  secureTextEntry={true}
+              />
+              <Button
+                  onPress={this.loginUser}
+                  title="Login"
+                  color="#841584"
+              />
           </View>
         );
     }
