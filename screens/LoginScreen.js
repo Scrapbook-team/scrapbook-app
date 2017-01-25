@@ -8,12 +8,13 @@ import {
 } from 'react-native';
 
 import { MonoText } from '../components/StyledText';
+import ScrapbookApi from '../api/ScrapbookApi';
 
 export default class LoginScreen extends React.Component {
     
     constructor(props) {
         super(props);
-        this.state = {userName: '', password: ''};
+        this.state = {email: '', password: ''};
     }
 
     static route = {
@@ -24,6 +25,7 @@ export default class LoginScreen extends React.Component {
 
     loginUser = () => {
         console.log("login user");
+        ScrapbookApi.login(this.state.email, this.state.password);
     }
 
     render() {
@@ -35,11 +37,13 @@ export default class LoginScreen extends React.Component {
               <TextInput
                   style={styles.textField}
                   placeholder="Email"
+                  onChangeText={(email) => this.setState({email})}
               />
               <TextInput
                   style={styles.textField}
                   placeholder="Password"
                   secureTextEntry={true}
+                  onChangeText={(password) => this.setState({password})}
               />
               <Button
                   onPress={this.loginUser}
