@@ -5,12 +5,16 @@ import {
   TextInput,
   Button,
   View,
+  AsyncStorage,
 } from 'react-native';
 
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
+import ApiUtils from '../utilities/ApiUtils';
 
-export default class LoginScreen extends React.Component {
+import Router from'../navigation/Router';
+
+export default class Login extends React.Component {
     
     constructor(props) {
         super(props);
@@ -24,8 +28,20 @@ export default class LoginScreen extends React.Component {
     } 
 
     loginUser = () => {
-        console.log("login user");
-        ScrapbookApi.login(this.state.email, this.state.password);
+        ScrapbookApi.login(this.state.email, this.state.password)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                return r.json();
+            })
+            .then((r) => {
+                user = r;
+                console.log(user);
+                this.setState({user});
+                AsyncStorage.setItem('Scrapbook:UserToken', user.token);
+                AsyncStorage.setItem('Scrapbook:UserId', user.id);
+                this.props.navigator.push(Router.getRoute('groupList'));
+            })
+            .catch(e => console.log(e));
     }
 
     render() {
