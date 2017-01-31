@@ -12,12 +12,13 @@ import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
-import Router from'../navigation/Router';
 
 export default class Login extends React.Component {
     
     constructor(props) {
         super(props);
+        AsyncStorage.removeItem('Scrapbook:UserToken');
+        AsyncStorage.removeItem('Scrapbook:UserId');
         this.state = {email: '', password: ''};
     }
 

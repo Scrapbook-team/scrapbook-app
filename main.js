@@ -8,44 +8,19 @@ import {
   View,
   AsyncStorage,
 } from 'react-native';
-import {
-  NavigationProvider,
-  StackNavigation,
-} from '@exponent/ex-navigation';
+import { StackNavigator } from 'react-navigation';
 import {
   FontAwesome,
 } from '@exponent/vector-icons';
 
-import Router from './navigation/Router';
-import cacheAssetsAsync from './utilities/cacheAssetsAsync';
+import GroupList from './screens/GroupList';
+import Login from './screens/Login';
+import { MainDrawer } from './components/MainDrawer';
 
-
-
-class AppContainer extends React.Component {
-
-
-    componentDidMount() {
-        console.log('yolo');
-        AsyncStorage.getItem('Scrapbook:UserToken')
-            .then(token => {
-                if (token) {
-                    console.log(token);
-                }
-                else {
-                    console.log(this.state.initialRoute);
-                    this.props.navigator.push(Router.getRoute('login'));
-                }
-            });
-    }
-
-    render() {
-        return (
-            <NavigationProvider router={Router}>
-                <StackNavigation initialRoute={Router.getRoute('groupList')} />
-            </NavigationProvider>
-        );
-    }
-}
+const ScrapbookApp = StackNavigator({
+    Home: { screen: MainDrawer },
+    Login: {screen: Login },
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -58,4 +33,4 @@ const styles = StyleSheet.create({
   },
 });
 
-Exponent.registerRootComponent(AppContainer);
+Exponent.registerRootComponent(ScrapbookApp);
