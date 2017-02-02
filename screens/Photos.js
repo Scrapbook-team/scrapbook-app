@@ -13,20 +13,10 @@ import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
 
-export default class Chat extends React.Component {
+export default class Photos extends React.Component {
     
     static navigationOptions = {
         title: ({state}) => `${state.params.name}`,
-        header: ({navigate, state}) => {
-            let right = (
-                <Button
-                    title='Photos'
-                    onPress={() => navigate('Photos', {id: state.params.id, name: state.params.name})}
-                />
-            );
-
-            return {right};
-        }
     };
 
 

@@ -15,7 +15,7 @@ import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 import Chat from './Chat';
-
+import Photos from './Photos';
 
 
 
@@ -125,6 +125,9 @@ const GroupStack = StackNavigator({
     },
     Chat: {
         screen: Chat,
+    },
+    Photos: {
+        screen: Photos,
     },
 });
 
