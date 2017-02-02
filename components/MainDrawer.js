@@ -1,8 +1,12 @@
 import { DrawerNavigator } from 'react-navigation';
-import GroupList from '../screens/GroupList';
+import GroupStack from '../screens/GroupStack';
+import Login from '../screens/Login';
 
 export const MainDrawer = DrawerNavigator({
-    GroupList: {
-        screen: GroupList,
+    GroupStack: {
+        screen: GroupStack,
+    },
+    Login: {
+        screen: Login,
     },
 });

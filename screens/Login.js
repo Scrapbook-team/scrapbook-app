@@ -15,18 +15,22 @@ import ApiUtils from '../utilities/ApiUtils';
 
 export default class Login extends React.Component {
     
-    constructor(props) {
-        super(props);
-        AsyncStorage.removeItem('Scrapbook:UserToken');
-        AsyncStorage.removeItem('Scrapbook:UserId');
-        this.state = {email: '', password: ''};
+    static navigationOptions = {
+        title: 'Scrapbook',
+        drawer: () => ({
+            label: 'Logout',
+        }),
     }
 
-    static route = {
-        navigationBar: {
-            visible: false,
-        },
-    } 
+    constructor(props) {
+        super(props);
+        this.state = {email: '', password: ''};
+    }
+    
+    componentDidMount() {
+        AsyncStorage.removeItem('Scrapbook:UserToken');
+        AsyncStorage.removeItem('Scrapbook:UserId');
+    }
 
     loginUser = () => {
         ScrapbookApi.login(this.state.email, this.state.password)
@@ -40,7 +44,7 @@ export default class Login extends React.Component {
                 this.setState({user});
                 AsyncStorage.setItem('Scrapbook:UserToken', user.token);
                 AsyncStorage.setItem('Scrapbook:UserId', user.id);
-                this.props.navigator.push(Router.getRoute('groupList'));
+                this.props.navigation.navigate('Home');
             })
             .catch(e => console.log(e));
     }

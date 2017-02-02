@@ -13,7 +13,7 @@ import {
   FontAwesome,
 } from '@exponent/vector-icons';
 
-import GroupList from './screens/GroupList';
+import GroupList from './screens/GroupStack';
 import Login from './screens/Login';
 import { MainDrawer } from './components/MainDrawer';
 
