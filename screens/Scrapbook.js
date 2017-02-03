@@ -13,12 +13,14 @@ import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
 
-export default class Photos extends React.Component {
-    
+export default class Scrapbook extends React.Component {
+     
     static navigationOptions = {
-        title: ({state}) => `${state.params.name}`,
-    };
-
+        title: 'Scrapbook',
+        tabBar: {
+            label: 'Scrapbook',
+        },
+    }
 
     render() {
         return (

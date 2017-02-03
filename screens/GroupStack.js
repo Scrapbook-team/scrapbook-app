@@ -15,7 +15,7 @@ import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 import Chat from './Chat';
-import Photos from './Photos';
+import { PhotoTabs } from '../components/PhotoTabs';
 
 
 
@@ -34,7 +34,7 @@ class GroupList extends React.Component {
 
         const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            dataSource: dataSource.cloneWithRows([{name:'', descriptinon: ''}]),
+            dataSource: dataSource.cloneWithRows([{name:'', description: ''}]),
         };
     }
 
@@ -126,8 +126,8 @@ const GroupStack = StackNavigator({
     Chat: {
         screen: Chat,
     },
-    Photos: {
-        screen: Photos,
+    PhotoTabs: {
+        screen: PhotoTabs,
     },
 });
 
