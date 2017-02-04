@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,26 +14,26 @@ import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
 
-export default class Login extends React.Component {
+export default class Register extends React.Component {
 
     static navigationOptions = {
         title: 'Scrapbook',
         drawer: () => ({
-            label: 'Logout',
+            label: 'Register',
         }),
     }
 
     constructor(props) {
         super(props);
+        this.state = {email: '', password: '', firstName: '', lastName: ''};
     }
 
     componentDidMount() {
-        AsyncStorage.removeItem('Scrapbook:UserToken');
-        AsyncStorage.removeItem('Scrapbook:UserId');
+
     }
 
-    loginUser = () => {
-        ScrapbookApi.login(this.state.email, this.state.password)
+    registerUser = () => {
+        ScrapbookApi.register(this.state.email, this.state.password, this.state.firstName, this.state.lastName)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 return r.json();
@@ -46,10 +47,6 @@ export default class Login extends React.Component {
                 this.props.navigation.navigate('Home');
             })
             .catch(e => console.log(e));
-    }
-
-    register = () => {
-        this.props.navigation.navigate('Register');
     }
 
     render() {
@@ -71,15 +68,19 @@ export default class Login extends React.Component {
                   secureTextEntry={true}
                   onChangeText={(password) => this.setState({password})}
               />
-              <Button
-                  onPress={this.loginUser}
-                  title="LOGIN"
-                  color="#841584"
+              <TextInput
+                  style={styles.textField}
+                  placeholder="First Name"
+                  onChangeText={(firstName) => this.setState({firstName})}
+              />
+              <TextInput
+                  style={styles.textField}
+                  placeholder="Last Name"
+                  onChangeText={(lastName) => this.setState({lastName})}
               />
               <Button
-                  style={styles.newAccount}
-                  onPress={this.register}
-                  title="CREATE NEW SCRAPBOOK ACCOUNT"
+                  onPress={this.registerUser}
+                  title="Register"
                   color="#841584"
               />
           </KeyboardAvoidingView>
@@ -96,8 +97,5 @@ const styles = StyleSheet.create({
     },
     textField: {
         height: 40,
-    },
-    newAccount:{
-        alignSelf: 'flex-end',
     }
 });
