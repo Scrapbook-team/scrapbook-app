@@ -1,11 +1,13 @@
 import React from 'react';
 import {
+  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TextInput,
   Button,
   View,
   AsyncStorage,
+  Keyboard,
 } from 'react-native';
 
 import { MonoText } from '../components/StyledText';
@@ -32,6 +34,7 @@ export default class Login extends React.Component {
     }
 
     loginUser = () => {
+        Keyboard.dismiss();
         ScrapbookApi.login(this.state.email, this.state.password)
             .then(ApiUtils.checkStatus)
             .then((r) => {
@@ -57,25 +60,27 @@ export default class Login extends React.Component {
             <KeyboardAvoidingView
               behavior={'padding'}
               style={styles.container}>
-              <Text>
+              <Text style={styles.title} >
                   Scrapbook
               </Text>
-              <TextInput
-                  style={styles.textField}
-                  placeholder="Email"
-                  onChangeText={(email) => this.setState({email})}
-              />
-              <TextInput
-                  style={styles.textField}
-                  placeholder="Password"
-                  secureTextEntry={true}
-                  onChangeText={(password) => this.setState({password})}
-              />
-              <Button
-                  onPress={this.loginUser}
-                  title="LOGIN"
-                  color="#841584"
-              />
+              <View style={styles.formContainer} >
+                  <TextInput
+                      style={styles.textField}
+                      placeholder="Email"
+                      onChangeText={(email) => this.setState({email})}
+                  />
+                  <TextInput
+                      style={styles.textField}
+                      placeholder="Password"
+                      secureTextEntry={true}
+                      onChangeText={(password) => this.setState({password})}
+                  />
+                  <Button
+                      onPress={this.loginUser}
+                      title="LOGIN"
+                      color="#841584"
+                  />
+              </View>
               <Button
                   style={styles.newAccount}
                   onPress={this.register}
@@ -92,12 +97,16 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         padding: 10,
-        justifyContent: 'center',
+        justifyContent: 'space-around',
+    },
+    title:{
+      textAlign: 'center',
+      fontSize: 24,
     },
     textField: {
         height: 40,
     },
-    newAccount:{
-        alignSelf: 'flex-end',
-    }
+    newAccount: {
+        marginTop: 10,
+    },
 });
