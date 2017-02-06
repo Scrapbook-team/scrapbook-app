@@ -9,23 +9,29 @@ import {
   AsyncStorage,
   Keyboard,
 } from 'react-native';
-
+import * as Forms from 'tcomb-form-native';
+import update from 'react-addons-update';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
+const Credential = Forms.struct({
+    email: Forms.String,
+    password: Forms.String,
+});
+const Form = Forms.form.Form;
 
 export default class Login extends React.Component {
 
     static navigationOptions = {
-        title: 'Scrapbook',
-        drawer: () => ({
-            label: 'Logout',
-        }),
+        header: {
+            visible: false,
+        },
     }
 
     constructor(props) {
         super(props);
+        this.state = {showInvalid: false, credential: {}};
     }
 
     componentDidMount() {
@@ -35,20 +41,25 @@ export default class Login extends React.Component {
 
     loginUser = () => {
         Keyboard.dismiss();
-        ScrapbookApi.login(this.state.email, this.state.password)
-            .then(ApiUtils.checkStatus)
+        if(this.state.credential){
+            ScrapbookApi.login(this.state.credential.email, this.state.credential.password)
             .then((r) => {
-                return r.json();
-            })
-            .then((r) => {
-                user = r;
-                console.log(user);
-                this.setState({user});
-                AsyncStorage.setItem('Scrapbook:UserToken', user.token);
-                AsyncStorage.setItem('Scrapbook:UserId', user.id);
-                this.props.navigation.navigate('Home');
-            })
-            .catch(e => console.log(e));
+                console.log(r.status);
+                if(r.status >= 200 && r.status < 300) {
+                    r.json().then((user) => {
+                        console.log(user.token);
+    //                        this.setState({user});
+                        Promise.all([
+                            AsyncStorage.setItem('Scrapbook:UserToken', user.token),
+                            AsyncStorage.setItem('Scrapbook:UserId', user.id)
+                        ]).then(this.props.navigation.navigate('Home'));
+                    })
+                } else {
+                    console.log("setting stuff")
+                    this.setState({credential: update(this.state.credential, {password: {$set: ''}}), showInvalid: true});
+                }
+            });
+        }
     }
 
     register = () => {
@@ -63,23 +74,18 @@ export default class Login extends React.Component {
               <Text style={styles.title} >
                   Scrapbook
               </Text>
-              <View style={styles.formContainer} >
-                  <TextInput
-                      style={styles.textField}
-                      placeholder="Email"
-                      onChangeText={(email) => this.setState({email})}
-                  />
-                  <TextInput
-                      style={styles.textField}
-                      placeholder="Password"
-                      secureTextEntry={true}
-                      onChangeText={(password) => this.setState({password})}
-                  />
+              <View>
+                  <Form
+                    ref="form"
+                    value={this.state.credential}
+                    onChange={credential => {this.setState({credential})}}
+                    type ={Credential}/>
                   <Button
                       onPress={this.loginUser}
                       title="LOGIN"
                       color="#841584"
                   />
+                  {this.state.showInvalid && this.renderInvalid()}
               </View>
               <Button
                   style={styles.newAccount}
@@ -89,6 +95,19 @@ export default class Login extends React.Component {
               />
           </KeyboardAvoidingView>
         );
+    }
+
+    renderInvalid = () => {
+        console.log("render invalid");
+        if(this.state.showInvalid){
+            return (
+                <Text style={styles.invalidLogin}>
+                    Invalid email or password
+                </Text>
+            );
+        } else {
+            return null;
+        }
     }
 }
 
@@ -108,5 +127,8 @@ const styles = StyleSheet.create({
     },
     newAccount: {
         marginTop: 10,
+    },
+    invalidLogin: {
+        color: 'crimson',
     },
 });
