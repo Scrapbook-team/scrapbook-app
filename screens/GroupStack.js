@@ -20,14 +20,14 @@ import { PhotoTabs } from '../components/PhotoTabs';
 
 
 class GroupList extends React.Component {
-    
+
     static navigationOptions = {
         title: 'Scrapbook',
         drawer: () => ({
             label: 'Groups',
         }),
     }
-    
+
 
     constructor() {
         super();
@@ -41,19 +41,22 @@ class GroupList extends React.Component {
     componentDidMount() {
         AsyncStorage.getItem('Scrapbook:UserToken')
             .then(token => {
-                if (!token) this.props.navigation.navigate('Login');
-                this.setState({token});
-                console.log(this.state.token);
+                if (!token) {
+                    this.props.navigation.navigate('Login');
+                } else {
+                    this.setState({token});
+                    console.log(this.state.token);
 
-                AsyncStorage.getItem('Scrapbook:UserId')
-                    .then(userId => {
-                        this.setState({userId});
-                        console.log(this.state.userId);
-                        this.getGroups();
-                });
+                    AsyncStorage.getItem('Scrapbook:UserId')
+                        .then(userId => {
+                            this.setState({userId});
+                            console.log(this.state.userId);
+                            this.getGroups();
+                    });
+                }
             });
     }
-    
+
 
     /*
      * Get groups for a user.
@@ -77,7 +80,7 @@ class GroupList extends React.Component {
     }
 
     _renderGroupListItem(data) {
-        return ( 
+        return (
             <TouchableHighlight style={styles.container}
                 //onPress={() => navigation.navigate('Chat', {id: this.props.id, name: this.props.name})}
                 onPress={this._openChat.bind(this, data._id, data.name)}
@@ -110,7 +113,7 @@ class GroupList extends React.Component {
         );
     }
 
-    
+
 }
 
 const GroupStack = StackNavigator({

@@ -24,6 +24,22 @@ var ScrapbookApi = {
             })
         })
     },
+    // Register a user
+    register: function (userEmail, userPassword, userFirstName, userLastName) {
+        return fetch(apiUrl + '/users', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: userEmail,
+                password: userPassword,
+                firstName: userFirstName,
+                lastName: userLastName
+            })
+        })
+    },
     // Get all the groups a user is part of.
     getGroups: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/groups', {
