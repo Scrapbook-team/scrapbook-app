@@ -80,7 +80,7 @@ class GroupList extends React.Component {
         return ( 
             <TouchableHighlight style={styles.container}
                 //onPress={() => navigation.navigate('Chat', {id: this.props.id, name: this.props.name})}
-                onPress={this._openChat.bind(this, data.id, data.name)}
+                onPress={this._openChat.bind(this, data._id, data.name)}
                 >
                 <View>
                     <Text style={styles.name}>
@@ -94,8 +94,8 @@ class GroupList extends React.Component {
         );
     }
 
-    _openChat(id, name) {
-        this.props.navigation.navigate('Chat', {id, name});
+    _openChat(groupId, name) {
+        this.props.navigation.navigate('Chat', {groupId, name});
     }
 
 
