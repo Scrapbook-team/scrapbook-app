@@ -48,8 +48,22 @@ export default class Chat extends React.Component {
                     .then(userId => {
                         this.setState({userId});
                         console.log(this.state.userId);
+                        this.getMessages(0);
                 });
             });
+    }
+
+
+    getMessages(page) {
+        ScrapbookApi.getMessages(this.state.token, this.state.groupId, page)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                return r.json();
+            })
+            .then((r) => {
+                console.log(r);
+            })
+            .catch(e => console.log(e));
     }
 
     render() {
