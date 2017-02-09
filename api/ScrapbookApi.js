@@ -40,6 +40,17 @@ var ScrapbookApi = {
             })
         })
     },
+    // Get a list of photos a user has uploaded.
+    getUserPhotos: function (token, userId) {
+        return fetch(apiUrl + '/users/' + userId + '/photos', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            }
+        })
+    },
     // Get all the groups a user is part of.
     getGroups: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/groups', {

@@ -24,15 +24,5 @@ const ScrapbookApp = StackNavigator({
     Register: {screen: Register },
 });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  statusBarUnderlay: {
-    height: 24,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-  },
-});
 
 Exponent.registerRootComponent(ScrapbookApp);

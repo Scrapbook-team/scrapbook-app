@@ -73,8 +73,6 @@ class GroupList extends React.Component {
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(groups)
                 });
-                console.log('Hello!');
-                console.log('Groups: ' + newData);
             })
             .catch(e => console.log(e));
     }
@@ -136,8 +134,8 @@ const GroupStack = StackNavigator({
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: '#fff',
+        flex: 1,
     },
 });
 
