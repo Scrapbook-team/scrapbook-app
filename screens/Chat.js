@@ -33,6 +33,11 @@ export default class Chat extends React.Component {
     };
 
     componentDidMount() {
+        const { state } = this.props.navigation;
+        const { params } = state.routes[state.index];
+
+        this.setState({groupId: params.groupId, name: params.name});
+
         AsyncStorage.getItem('Scrapbook:UserToken')
             .then(token => {
                 if (!token) this.props.navigation.navigate('Login');
@@ -72,10 +77,10 @@ export default class Chat extends React.Component {
             aspect: [4,3]
         });
         console.log(this.props);
-        this._handleImagePicked(this.state.token, pickerResult, '58900ec01edf9819793f2402', this.state.userId);
+        this._handleImagePicked(this.state.token, pickerResult);
     }
 
-    _handleImagePicked = async (token, pickerResult, groupId, userId) => {
+    _handleImagePicked = async (token, pickerResult) => {
         let uploadResponse, uploadResult;
 
         try {
@@ -83,7 +88,7 @@ export default class Chat extends React.Component {
 
             if (!pickerResult.cancelled) {
                 //console.log(this.props.navigation.state.params.id);
-                uploadResponse = await ScrapbookApi.addPhoto(token, pickerResult.uri, groupId, userId, "Name", "caption");
+                uploadResponse = await ScrapbookApi.addPhoto(token, pickerResult.uri, this.state.groupId, this.state.userId, "Name", "caption");
                 uploadResult = await uploadResponse.json();
                 this.setState({image: uploadResult.location});
             }

@@ -78,7 +78,6 @@ var ScrapbookApi = {
     },
     // Upload a photo to the api, and add it to a group.
     addPhoto: function (token, uri, groupId, ownerId, name, caption) {
-        console.log('Upload 1');
         let uriParts = uri.split('.');
         let fileType = uriParts[uriParts.length - 1];
 
@@ -104,7 +103,6 @@ var ScrapbookApi = {
                 'x-access-token': token,
             },
         };
-        console.log(formData);
         return fetch(apiUrl + '/groups/' + groupId + '/photos', options);
     },
 };
