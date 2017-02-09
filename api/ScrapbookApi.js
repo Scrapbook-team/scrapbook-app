@@ -51,6 +51,31 @@ var ScrapbookApi = {
             }
         })
     },
+    // Send a message in a group chat.
+    sendMessage: function (token, groupId, memberId, photoId) {
+        return fetch(apiUrl + '/groups/' + groupId + '/messages', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            }
+        })
+    },
+    // Get messages from a group.
+    getMessages: function (token, groupId, page) {
+        var query = '';
+        if (page)
+            query = '/?page=' + page;
+        return fetch(apiUrl + '/groups/' + groupId + '/messages' + query, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            }
+        })
+    },
     // Upload a photo to the api, and add it to a group.
     addPhoto: function (token, uri, groupId, ownerId, name, caption) {
         console.log('Upload 1');
