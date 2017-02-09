@@ -19,6 +19,14 @@ const Credential = Forms.struct({
     email: Forms.String,
     password: Forms.String,
 });
+const options = {
+  fields: {
+    password: {
+      password: true,
+      secureTextEntry: true
+    }
+  }
+};
 const Form = Forms.form.Form;
 
 export default class Login extends React.Component {
@@ -79,7 +87,8 @@ export default class Login extends React.Component {
                     ref="form"
                     value={this.state.credential}
                     onChange={credential => {this.setState({credential})}}
-                    type ={Credential}/>
+                    type ={Credential}
+                    options={options} />
                   <Button
                       onPress={this.loginUser}
                       title="LOGIN"
