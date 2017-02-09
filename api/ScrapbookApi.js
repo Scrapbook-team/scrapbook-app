@@ -52,6 +52,8 @@ var ScrapbookApi = {
             body: JSON.stringify({
                 name: groupName,
                 description: groupDescription,
+                ownerId: userId,
+                members: [userId],
             })
         })
     },

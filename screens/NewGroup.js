@@ -52,7 +52,7 @@ export default class NewGroup extends React.Component {
                 return r.json();
             })
             .then((r) => {
-                this.props.navigation.navigate('Chat', {id: r._id,name: r.name});
+                this.props.navigation.navigate('Chat', {groupId: r._id, name: r.name});
             })
             .catch(e => console.log(e));
         }
