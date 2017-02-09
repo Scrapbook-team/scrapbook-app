@@ -25,10 +25,9 @@ const Form = Forms.form.Form;
 export default class Register extends React.Component {
 
     static navigationOptions = {
-        title: 'Register',
-        drawer: () => ({
-            label: 'Register',
-        }),
+        header: {
+            visible: false,
+        },
     }
 
     constructor(props) {
@@ -60,24 +59,39 @@ export default class Register extends React.Component {
         }
     }
 
+    login = () => {
+        this.props.navigation.navigate('Login');
+    }
+
     render() {
         return (
             <KeyboardAvoidingView
               behavior={'padding'}
               style={styles.container}>
-              <Text style={styles.title} >
-                  Scrapbook
-              </Text>
-              <Form
-                ref="form"
-                value={this.state.registration}
-                onChange={registration => {this.setState({registration})}}
-                type ={Registration}/>
-              <Button
-                  onPress={this.registerUser}
-                  title="Register"
-                  color="#841584"
-              />
+              <View style={styles.titleCont}>
+                  <Text style={styles.title} >
+                      Scrapbook
+                  </Text>
+              </View>
+              <View>
+                  <Form
+                    ref="form"
+                    value={this.state.registration}
+                    onChange={registration => {this.setState({registration})}}
+                    type ={Registration}/>
+                  <Button
+                      onPress={this.registerUser}
+                      title="Register"
+                      color="#841584"
+                  />
+              </View>
+              <View style={styles.loginCont}>
+                  <Button
+                      onPress={this.login}
+                      title="Already have an account?"
+                      color="#841584"
+                  />
+              </View>
           </KeyboardAvoidingView>
         );
     }
@@ -90,13 +104,16 @@ const styles = StyleSheet.create({
         padding: 10,
         justifyContent: 'center',
     },
-    title:{
-      textAlign: 'center',
-      fontSize: 24,
-      flex: 1,
+    titleCont: {
+      flexGrow: 1,
       justifyContent: 'center',
     },
-    textField: {
-        height: 40,
+    title: {
+      textAlign: 'center',
+      fontSize: 24,
+    },
+    loginCont:{
+        flexGrow: 1,
+        justifyContent: 'center',
     }
 });

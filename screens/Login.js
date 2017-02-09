@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     },
     newAccountCont: {
         flexGrow: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
     },
     invalidLogin: {
         color: 'crimson',
