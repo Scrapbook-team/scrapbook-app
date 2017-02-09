@@ -14,13 +14,8 @@ import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
-import Chat from './Chat';
-import { PhotoTabs } from '../components/PhotoTabs';
-import NewGroup from './NewGroup';
 
-
-
-class GroupList extends React.Component {
+export default class GroupList extends React.Component {
 
     static navigationOptions = {
         title: 'Scrapbook',
@@ -120,32 +115,9 @@ class GroupList extends React.Component {
 
 }
 
-const GroupStack = StackNavigator({
-    GroupList: {
-        screen: GroupList,
-        navigationOptions: {
-            title: 'Scrapbook',
-            drawer: () => ({
-                label: 'Groups',
-            }),
-        }
-    },
-    NewGroup: {
-        screen: NewGroup,
-    },
-    Chat: {
-        screen: Chat,
-    },
-    PhotoTabs: {
-        screen: PhotoTabs,
-    },
-});
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
     },
 });
-
-export default GroupStack;
