@@ -19,7 +19,7 @@ import { PhotoTabs } from '../components/PhotoTabs';
 
 
 
-class GroupList extends React.Component {
+export default class GroupList extends React.Component {
 
     static navigationOptions = {
         title: 'Scrapbook',
@@ -116,29 +116,9 @@ class GroupList extends React.Component {
 
 }
 
-const GroupStack = StackNavigator({
-    GroupList: {
-        screen: GroupList,
-        navigationOptions: {
-            title: 'Scrapbook',
-            drawer: () => ({
-                label: 'Groups',
-            }),
-        }
-    },
-    Chat: {
-        screen: Chat,
-    },
-    PhotoTabs: {
-        screen: PhotoTabs,
-    },
-});
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
     },
 });
-
-export default GroupStack;
