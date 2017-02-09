@@ -16,6 +16,7 @@ import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 import Chat from './Chat';
 import { PhotoTabs } from '../components/PhotoTabs';
+import NewGroup from './NewGroup';
 
 
 
@@ -23,6 +24,9 @@ class GroupList extends React.Component {
 
     static navigationOptions = {
         title: 'Scrapbook',
+        header: ({navigate}) => {
+            return {right: <Button title="New Group" onPress={() => navigate('NewGroup') } />}
+        },
         drawer: () => ({
             label: 'Groups',
         }),
@@ -125,6 +129,9 @@ const GroupStack = StackNavigator({
                 label: 'Groups',
             }),
         }
+    },
+    NewGroup: {
+        screen: NewGroup,
     },
     Chat: {
         screen: Chat,
