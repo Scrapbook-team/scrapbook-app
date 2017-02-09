@@ -52,14 +52,19 @@ var ScrapbookApi = {
         })
     },
     // Send a message in a group chat.
-    sendMessage: function (token, groupId, memberId, photoId) {
+    sendMessage: function (token, groupId, text, userId, photoId) {
         return fetch(apiUrl + '/groups/' + groupId + '/messages', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'x-access-token': token,
-            }
+            },
+            body: JSON.stringify({
+                text,
+                userId,
+                photoId,
+            })
         })
     },
     // Get messages from a group.

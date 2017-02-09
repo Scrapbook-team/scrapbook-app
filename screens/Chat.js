@@ -49,6 +49,7 @@ export default class Chat extends React.Component {
                         this.setState({userId});
                         console.log(this.state.userId);
                         this.getMessages(0);
+                        this.sendMessage('Hi');
                 });
             });
     }
@@ -62,6 +63,24 @@ export default class Chat extends React.Component {
             })
             .then((r) => {
                 console.log(r);
+            })
+            .catch(e => console.log(e));
+    }
+
+    sendMessage(text) {
+        ScrapbookApi.sendMessage(this.state.token, this.state.groupId, text, this.state.userId)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                this.getMessages(0);
+            })
+            .catch(e => console.log(e));
+    }
+
+    sendPhoto() {
+        ScrapbookApi.sendMessage(this.state.token, this.state.groupId, text, this.state.userId)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                this.getMessages(0);
             })
             .catch(e => console.log(e));
     }
