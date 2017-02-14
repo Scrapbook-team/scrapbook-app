@@ -11,7 +11,7 @@ var apiUrl = 'http://54.174.232.52';
 
 var ScrapbookApi = {
     // Essentially just get a token for the app to use.
-    login: function (userEmail, userPassword) {
+    login: function (userEmail, userPassword, exponentPushToken) {
         return fetch(apiUrl + '/auth/token', {
             method: 'POST',
             headers: {
@@ -20,7 +20,8 @@ var ScrapbookApi = {
             },
             body: JSON.stringify({
                 email: userEmail,
-                password: userPassword
+                password: userPassword,
+                exponentPushToken: exponentPushToken,
             })
         })
     },
