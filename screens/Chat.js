@@ -37,8 +37,7 @@ export default class Chat extends React.Component {
     }
 
     componentDidMount() {
-        const { state } = this.props.navigation;
-        const { params } = state.routes[state.index];
+        const { params } = this.props.navigation.state;
 
         this.setState({groupId: params.groupId, name: params.name});
 

@@ -19,4 +19,7 @@ export const GroupStack = StackNavigator({
     PhotoTabs: {
         screen: PhotoTabs,
     },
+}, {
+    initialRouteName: 'GroupList',
+    headerMode: 'screen',   
 });

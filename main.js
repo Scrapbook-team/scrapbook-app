@@ -21,6 +21,9 @@ const ScrapbookApp = StackNavigator({
     Home: { screen: MainDrawer },
     Login: {screen: Login },
     Register: {screen: Register },
+},
+{
+    headerMode: 'none',
 });
 
 const styles = StyleSheet.create({
