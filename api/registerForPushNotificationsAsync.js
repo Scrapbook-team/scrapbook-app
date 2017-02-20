@@ -23,7 +23,7 @@ export default async function registerForPushNotificationsAsync() {
   let token = await Notifications.getExponentPushTokenAsync();
 
   // POST the token to our backend so we can use it to send pushes from there
-  return fetch(PUSH_ENDPOINT, {
+  fetch(PUSH_ENDPOINT, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -35,4 +35,6 @@ export default async function registerForPushNotificationsAsync() {
        },
     }),
   });
+
+  return token;
 }

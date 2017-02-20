@@ -14,6 +14,7 @@ import update from 'react-addons-update';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
+import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
 const Credential = Forms.struct({
     email: Forms.String,
@@ -34,15 +35,25 @@ export default class Login extends React.Component {
         this.state = {showInvalid: false, credential: {}};
     }
 
+    componentWillMount() {
+    }
+
     componentDidMount() {
         AsyncStorage.removeItem('Scrapbook:UserToken');
         AsyncStorage.removeItem('Scrapbook:UserId');
+
+        registerForPushNotificationsAsync()
+            .then((r) => {
+                this.setState({'exponentPushToken': r});
+                console.log(r);
+            });
+
     }
 
     loginUser = () => {
         Keyboard.dismiss();
         if(this.state.credential){
-            ScrapbookApi.login(this.state.credential.email, this.state.credential.password)
+            ScrapbookApi.login(this.state.credential.email, this.state.credential.password, this.state.exponentPushToken)
             .then((r) => {
                 console.log(r.status);
                 if(r.status >= 200 && r.status < 300) {

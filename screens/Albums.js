@@ -21,7 +21,7 @@ export default class Albums extends React.Component {
     static navigationOptions = {
         title: 'Albums',
         tabBar: {
-            label: 'Gallery',
+            label: 'Albums',
         },
     }
 

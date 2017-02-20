@@ -1,6 +1,6 @@
 import { DrawerNavigator } from 'react-navigation';
-import GroupStack from '../screens/GroupStack';
 import MyPhotoStack from './MyPhotoStack';
+import { GroupStack } from './GroupStack';
 import Settings from '../screens/Settings';
 import Login from '../screens/Login';
 
