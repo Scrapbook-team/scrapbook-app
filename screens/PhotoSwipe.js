@@ -103,8 +103,7 @@ export default class PhotoSwipe extends Component {
   }
 
     render () {
-        const { state } = this.props.navigation;
-        const { params } = state.routes[state.index];
+        const { params } = this.props.navigation.state;
         console.log(this.props.navigation);
         
         return (
