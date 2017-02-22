@@ -8,6 +8,7 @@ import {
   ListView,
   AsyncStorage,
   TouchableHighlight,
+  Image,
 } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
@@ -16,18 +17,33 @@ import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
 
-export default class GroupList extends React.Component {
+export default class Moment extends React.Component {
 
     static navigationOptions = {
-        title: 'Scrapbook',
-        drawer: () => ({
-            label: 'Groups',
-        }),
+        title: ({state}) => `${state.params.name}`,
+        header: ({navigate, state}) => {
+            let right = (
+                <Button
+                    title='Chat'
+                    onPress={() => navigate('Chat', {
+                        groupId: state.params.groupId, 
+                        name: state.params.name, 
+                        momentId: state.params.momentId, 
+                        title: state.params.title
+                    })}
+                />
+            );
+
+            return {right};
+        }
     }
 
 
     constructor(props) {
         super(props);
+
+        console.log("Props");
+        console.log(props);
 
         const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
@@ -43,13 +59,11 @@ export default class GroupList extends React.Component {
                     this.props.navigation.navigate('Login');
                 } else {
                     this.setState({token});
-                    console.log(this.state.token);
 
                     AsyncStorage.getItem('Scrapbook:UserId')
                         .then(userId => {
                             this.setState({userId});
-                            console.log(this.state.userId);
-                            this.getGroups();
+                            this.getMoment();
                     });
                 }
             });
@@ -57,40 +71,58 @@ export default class GroupList extends React.Component {
 
 
     /*
-     * Get groups for a user.
+     * Get moment.
      */
-    getGroups() {
-        ScrapbookApi.getGroups(this.state.token, this.state.userId)
+    getMoment() {
+        ScrapbookApi.getMoment(this.state.token, this.props.navigation.state.params.momentId)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 return r.json();
             })
             .then((r) => {
-                groups = r;
-                console.log(groups);
+                moment = r;
+
+                var blocks = [];
+                for (var i = 0; i < moment.photos.length; i++) {
+                    blocks[moment.photos[i].position] = moment.photos[i];
+                }
+                for (var i = 0; i < moment.notes.length; i++) {
+                    blocks[moment.notes[i].position] = moment.notes[i];
+                }
+                
+
                 this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(groups),
+                    dataSource: this.state.dataSource.cloneWithRows(blocks),
                     loaded: true,
                 });
             })
             .catch(e => console.log(e));
     }
 
-    _renderGroupListItem(data) {
+    _renderMomentListItem(data) {
+        const photo = data.hasOwnProperty('photo');
+        const text = data.hasOwnProperty('text');
         return (
-            <TouchableHighlight style={styles.container}
-                //onPress={() => navigation.navigate('Chat', {id: this.props.id, name: this.props.name})}
-                onPress={this._openChat.bind(this, data._id, data.name)}
-                >
+            <View>
+            { photo &&
                 <View>
-                    <Text style={styles.name}>
-                        {`${data.name}`}
-                    </Text>
-                    <Text style={styles.description}>
-                        {`${data.description}`}
+                    <Image
+                        style={{width: 100, height: 100}}
+                        source={{uri: data.photo.urls[0]}}
+                    />
+                    <Text>
+                        {`${data.caption}`}
                     </Text>
                 </View>
-            </TouchableHighlight>
+            }
+            { text &&
+                <View>
+                    <Text style={styles.name}>
+                        {`${data.text}`}
+                    </Text>
+                </View>
+            }
+            </View>
         );
     }
 
@@ -106,7 +138,7 @@ export default class GroupList extends React.Component {
             { loaded &&
                 <ListView
                     dataSource={this.state.dataSource}
-                    renderRow={this._renderGroupListItem.bind(this)}
+                    renderRow={this._renderMomentListItem.bind(this)}
                 />
             }
             </View>

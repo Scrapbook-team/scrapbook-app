@@ -19,12 +19,17 @@ import { GiftedChat } from 'react-native-gifted-chat';
 export default class Chat extends React.Component {
 
     static navigationOptions = {
-        title: ({state}) => `${state.params.name}`,
+        title: ({state}) => `${state.params.title}`,
         header: ({navigate, state}) => {
             let right = (
                 <Button
-                    title='Photos'
-                    onPress={() => navigate('PhotoTabs', {groupId: state.params.groupId, name: state.params.name})}
+                    title='Moment'
+                    onPress={() => navigate('Moment', {
+                        groupId: state.params.groupId, 
+                        name: state.params.name, 
+                        momentId: state.params.momentId, 
+                        title: state.params.title
+                    })}
                 />
             );
 
@@ -33,18 +38,19 @@ export default class Chat extends React.Component {
     };
     constructor(props){
         super(props);
-        this.state = {messages: [], groupId: '', name: ''};
+        this.state = {messages: [], groupId: '', name: '', momentId: ''};
     }
 
     componentDidMount() {
         const { params } = this.props.navigation.state;
 
-        this.setState({groupId: params.groupId, name: params.name});
+        this.setState({momentId: params.momentId, title: params.title});
 
         AsyncStorage.getItem('Scrapbook:UserToken')
             .then(token => {
                 if (!token) this.props.navigation.navigate('Login');
                 this.setState({token});
+                console.log("HERRO!");
                 this.getMessages(0);
 
                 AsyncStorage.getItem('Scrapbook:UserId')
@@ -56,23 +62,29 @@ export default class Chat extends React.Component {
 
 
     getMessages = (page) => {
-        ScrapbookApi.getMessages(this.state.token, this.state.groupId, page)
+        ScrapbookApi.getMessages(this.state.token, this.state.momentId, page)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 return r.json();
             })
             .then((r) => {
                 //Convert the messages from the API into GiftedChat format
-                messages = [];
-                unprocessedMsgs = r;
-                for(msg of unprocessedMsgs){
-                    msg.createdAt = new Date(msg.createdAt);
-                    msg.user = msg.userId;
-                    delete msg.userId;
-                    msg.user.name = msg.user.firstName+' '+msg.user.lastName;
-                    delete msg.user.firstName;
-                    delete msg.user.lastName;
-                    messages.push(msg);
+                var messages = [];
+                var unprocessedMsgs = r;
+                for(var i = 0; i < unprocessedMsgs.length; i++){
+                    var msg = unprocessedMsgs[i];
+
+                    var newMsg = {
+                        _id: msg._id,
+                        text: msg.text,
+                        createdAt: new Date(msg.createdAt),
+                        user: {
+                            _id: msg.user._id,
+                            name: msg.user.firstName + ' ' + msg.user.lastName,
+                        }
+                    };
+
+                    messages.push(newMsg);
                 }
                 this.setState({messages})
             })
@@ -80,7 +92,7 @@ export default class Chat extends React.Component {
     }
 
     sendMessage = (text) => {
-        ScrapbookApi.sendMessage(this.state.token, this.state.groupId, text, this.state.userId)
+        ScrapbookApi.sendMessage(this.state.token, this.state.momentId, text)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 console.log(r);

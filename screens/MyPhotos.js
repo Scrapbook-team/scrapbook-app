@@ -26,6 +26,7 @@ export default class MyPhotos extends React.Component {
         const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             dataSource: dataSource.cloneWithRows([{urls: ['https://scrapbook-testing.s3.amazonaws.com/148644327903://scrapbook-testing.s3.amazonaws.com/1486443279039']}]),
+            loaded: false,
         };
     }
 
@@ -62,6 +63,7 @@ export default class MyPhotos extends React.Component {
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(photos),
                     photos,
+                    loaded: true,
                 });
             })
             .catch(e => console.log(e));
@@ -81,12 +83,15 @@ export default class MyPhotos extends React.Component {
     }
 
     render() {
+        const loaded = this.state.loaded;
         return (
             <View style={styles.container}>
+            { loaded &&
                 <ListView contentContainerStyle={styles.list}
                     dataSource={this.state.dataSource}
                     renderRow={this._renderPhotoListItem.bind(this)}
                 />
+            }
             </View>
         );
     }

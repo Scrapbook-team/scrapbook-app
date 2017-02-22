@@ -18,9 +18,5 @@ export const PhotoTabs = TabNavigator({
     tabBarPosition: 'bottom',
     tabBarOptions: {
         activeTintColor: Platform.OS === 'ios' ? '#e91e63' : '#fff',
-        style: {
-            backgroundColor: 'blue',
-            height: 100,
-        },
   },
 });

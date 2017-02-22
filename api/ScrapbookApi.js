@@ -64,8 +64,8 @@ var ScrapbookApi = {
         })
     },
     // Send a message in a group chat.
-    sendMessage: function (token, groupId, text, userId, photoId) {
-        return fetch(apiUrl + '/groups/' + groupId + '/messages', {
+    sendMessage: function (token, momentId, text, photoId) {
+        return fetch(apiUrl + '/moments/' + momentId + '/messages', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -74,17 +74,38 @@ var ScrapbookApi = {
             },
             body: JSON.stringify({
                 text,
-                userId,
                 photoId,
             })
         })
     },
     // Get messages from a group.
-    getMessages: function (token, groupId, page) {
+    getMessages: function (token, momentId, page) {
         var query = '';
         if (page)
             query = '/?page=' + page;
-        return fetch(apiUrl + '/groups/' + groupId + '/messages' + query, {
+        return fetch(apiUrl + '/moments/' + momentId + '/messages' + query, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            }
+        })
+    },
+    // Get moments from a group.
+    getMoments: function (token, groupId) {
+        return fetch(apiUrl + '/groups/' + groupId + '/moments', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            }
+        })
+    },
+    // Get a single moment
+    getMoment: function (token, momentId) {
+        return fetch(apiUrl + '/moments/' + momentId, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
