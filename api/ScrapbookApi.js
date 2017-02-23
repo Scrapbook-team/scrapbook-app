@@ -92,6 +92,30 @@ var ScrapbookApi = {
             }
         })
     },
+    // Create a new moment with an image.
+    newMoment: function (token, groupId, title, photoId, caption) {
+        var body = {
+            title,
+            photos: [
+                { 
+                    photo: photoId,
+                    caption: caption,
+                    position: 0,
+                }
+            ],
+            notes: [],
+        }
+
+        return fetch(apiUrl + '/groups/' + groupId + '/moments', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            },
+            body: JSON.stringify(body),
+        })
+    },
     // Get moments from a group.
     getMoments: function (token, groupId) {
         return fetch(apiUrl + '/groups/' + groupId + '/moments', {

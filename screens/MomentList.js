@@ -9,6 +9,7 @@ import {
   AsyncStorage,
   TouchableHighlight,
   Image,
+  Dimensions,
 } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
@@ -17,16 +18,25 @@ import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
+var width = Dimensions.get('window').width; //full width
+var height = Dimensions.get('window').height; //full height
+
 export default class MomentList extends React.Component {
 
     static navigationOptions = {
         title: ({state}) => `${state.params.name}`,
         header: ({navigate, state}) => {
             let right = (
-                <Button
-                    title='Photos'
-                    onPress={() => navigate('PhotoTabs', {groupId: state.params.groupId, name: state.params.name})}
-                />
+                <View>
+                    <Button
+                        title='New Moment'
+                        onPress={() => navigate('NewMoment', {groupId: state.params.groupId, name: state.params.name})}
+                    />
+                    <Button
+                        title='Photos'
+                        onPress={() => navigate('PhotoTabs', {groupId: state.params.groupId, name: state.params.name})}
+                    />
+                </View>
             );
 
             return {right};
@@ -95,12 +105,26 @@ export default class MomentList extends React.Component {
                 })}}
                 >
                 <View>
-                { data.thumbnail &&
-                    <Image
-                        style={{width: 100, height: 100}}
-                        source={{uri: data.thumbnail.urls[0]}}
-                    />
-                }
+                    <View style={styles.thumbnails}>
+                    { data.photos[0] &&
+                        <Image
+                            style={{width: width/3, height: width/3}}
+                            source={{uri: data.photos[0].photo.urls[0]}}
+                        />
+                    }
+                    { data.photos[1] &&
+                        <Image
+                            style={{width: width/3, height: width/3}}
+                            source={{uri: data.photos[1].photo.urls[0]}}
+                        />
+                    }
+                    { data.photos[2] &&
+                        <Image
+                            style={{width: width/3, height: width/3}}
+                            source={{uri: data.photos[2].photo.urls[0]}}
+                        />
+                    }
+                    </View>
                     <Text style={styles.title}>
                         {`${data.title}`}
                     </Text>
@@ -137,5 +161,9 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
         flex: 1,
+    },
+    thumbnails: {
+        flexWrap: 'nowrap',
+        flexDirection: 'row',
     },
 });
