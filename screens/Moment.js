@@ -9,13 +9,17 @@ import {
   AsyncStorage,
   TouchableHighlight,
   Image,
+  Dimensions,
 } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
+import dateutil from 'dateutil';
 
+var width = Dimensions.get('window').width; //full width
+var height = Dimensions.get('window').height; //full height
 
 export default class Moment extends React.Component {
 
@@ -83,11 +87,16 @@ export default class Moment extends React.Component {
                 moment = r;
 
                 var blocks = [];
+                blocks[0] = {
+                    title: moment.title,
+                    date: dateutil.format(new Date(moment.createdDate), 'F jS, Y'),
+                };
+
                 for (var i = 0; i < moment.photos.length; i++) {
-                    blocks[moment.photos[i].position] = moment.photos[i];
+                    blocks[moment.photos[i].position + 1] = moment.photos[i];
                 }
                 for (var i = 0; i < moment.notes.length; i++) {
-                    blocks[moment.notes[i].position] = moment.notes[i];
+                    blocks[moment.notes[i].position + 1] = moment.notes[i];
                 }
                 
 
@@ -100,25 +109,40 @@ export default class Moment extends React.Component {
     }
 
     _renderMomentListItem(data) {
+        const title = data.hasOwnProperty('title');
         const photo = data.hasOwnProperty('photo');
         const text = data.hasOwnProperty('text');
         return (
             <View>
+            { title &&
+                <View style={styles.titleBlock}>
+                    <Text style={styles.title}>
+                        {`${data.title}`}
+                    </Text>
+                    <Text style={styles.date}>
+                        {`${data.date}`}
+                    </Text>
+                </View>
+            }
             { photo &&
                 <View>
                     <Image
-                        style={{width: 100, height: 100}}
+                        style={styles.momentImage}
                         source={{uri: data.photo.urls[0]}}
+                        resizeMode={'cover'}
                     />
-                    <Text>
+                    <Text style={styles.caption}>
                         {`${data.caption}`}
                     </Text>
                 </View>
             }
             { text &&
                 <View>
-                    <Text style={styles.name}>
-                        {`${data.text}`}
+                    <Text style={styles.noteText}>
+                        {`\u201c${data.text}\u201d`}
+                    </Text>
+                    <Text style={styles.noteAuthor}>
+                        {`-${data.user.firstName}`}
                     </Text>
                 </View>
             }
@@ -150,7 +174,39 @@ export default class Moment extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
+        backgroundColor: '#faebd7',
         flex: 1,
+    },
+    titleBlock: {
+        paddingHorizontal: 12,
+        flexWrap: 'nowrap',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    title: {
+        fontSize: 32,
+        textAlign: 'left',
+    },
+    date: {
+        fontSize: 12,
+        textAlign: 'right',
+    },
+    momentImage: {
+        width: width,
+        height: 500,
+    },
+    caption: {
+        paddingHorizontal: 12,
+        fontSize: 16,
+        color: '#2f4f4f',
+    },
+    noteText: {
+        paddingHorizontal: 12,
+        fontSize: 24,
+    },
+    noteAuthor: {
+        paddingHorizontal: 12,
+        fontSize: 16,
+        textAlign: 'right',
     },
 });
