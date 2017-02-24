@@ -14,7 +14,7 @@ import {
 
 import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
-
+import { Ionicons } from '@exponent/vector-icons';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
@@ -92,15 +92,15 @@ export default class MomentList extends React.Component {
     _renderMomentListItem(data) {
         console.log('Hello');
         return (
-            <TouchableHighlight style={styles.container}
-                onPress={() => {this.props.navigation.navigate('Moment', {
-                    groupId: this.props.navigation.state.params.groupId, 
-                    name: this.props.navigation.state.params.name,
-                    momentId: data._id,
-                    title: data.title,
-                })}}
-                >
-                <View>
+            <View>
+                <TouchableHighlight style={styles.container}
+                    onPress={() => {this.props.navigation.navigate('Moment', {
+                        groupId: this.props.navigation.state.params.groupId, 
+                        name: this.props.navigation.state.params.name,
+                        momentId: data._id,
+                        title: data.title,
+                    })}}
+                    >
                     <View style={styles.thumbnails}>
                     { data.photos[0] &&
                         <Image
@@ -121,18 +121,25 @@ export default class MomentList extends React.Component {
                         />
                     }
                     </View>
+                </TouchableHighlight>
+                <View style={styles.momentBar}>
                     <Text style={styles.title}>
                         {`${data.title}`}
                     </Text>
+                    <View style={styles.momentButtons}>
+                        <TouchableHighlight
+                            onPress={() => ScrapbookApi.sendMemory(this.state.token, data._id)}
+                            >
+                            <Ionicons name="ios-send-outline" size={40} />                   
+                        </TouchableHighlight>
+                        <TouchableHighlight>
+                            <Ionicons name="ios-more-outline" size={40} />                   
+                        </TouchableHighlight>
+                    </View>
                 </View>
-            </TouchableHighlight>
+            </View>
         );
     }
-
-    _openChat(groupId, name) {
-        this.props.navigation.navigate('Chat', {groupId, name});
-    }
-
 
     render() {
         const loaded = this.state.loaded;
@@ -161,5 +168,19 @@ const styles = StyleSheet.create({
     thumbnails: {
         flexWrap: 'nowrap',
         flexDirection: 'row',
+    },
+    title: {
+        fontSize: 24,
+        marginLeft: 12,
+    },
+    momentBar: {
+        flexWrap: 'nowrap',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    momentButtons: {
+        flexDirection: 'row',
+        marginRight: 12,
     },
 });

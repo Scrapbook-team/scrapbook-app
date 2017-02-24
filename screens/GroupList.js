@@ -9,7 +9,12 @@ import {
   AsyncStorage,
   TouchableHighlight,
 } from 'react-native';
-
+import Exponent, {
+  Notifications,
+} from 'exponent';
+import {
+    NavigationActions,
+} from 'react-navigation';
 import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
@@ -35,6 +40,30 @@ export default class GroupList extends React.Component {
             loaded: false,
         };
     }
+
+    componentWillMount() {
+        this._notificationSubscription = Notifications.addListener(this._handleNotification);
+    }
+
+    _handleNotification = (notification) => {
+
+        if (notification.origin === 'selected' || notification.origin === 'received') {
+            if (notification.data.momentId) {
+
+                const data = notification.data;
+                const resetAction = NavigationActions.reset({
+                    index: 2,
+                    actions: [
+                        NavigationActions.navigate({ routeName: 'GroupList' }),
+                        NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: data.groupId, name: data.name }}),
+                        NavigationActions.navigate({ routeName: 'Moment', params: {groupId: data.groupId, name: data.name, momentId: data.momentId, title: data.title}}),
+                    ]
+                });
+
+                this.props.navigation.dispatch(resetAction);
+            }
+        }
+    };
 
     componentDidMount() {
         AsyncStorage.getItem('Scrapbook:UserToken')

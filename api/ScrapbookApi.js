@@ -178,6 +178,17 @@ var ScrapbookApi = {
             }
         })
     },
+    // Send memory
+    sendMemory: function (token, memoryId) {
+        return fetch(apiUrl + '/memories/' + memoryId, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            },
+        })
+    },
 };
 
 export { ScrapbookApi as default };
