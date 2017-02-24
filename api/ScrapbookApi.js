@@ -167,6 +167,17 @@ var ScrapbookApi = {
         };
         return fetch(apiUrl + '/groups/' + groupId + '/photos', options);
     },
+    // Find contacts based on a query.
+    findContacts: function (token, query) {
+        return fetch(apiUrl + '/contacts/?q=' + encodeURIComponent(query), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            }
+        })
+    },
 };
 
 export { ScrapbookApi as default };

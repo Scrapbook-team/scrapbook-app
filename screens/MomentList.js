@@ -32,10 +32,6 @@ export default class MomentList extends React.Component {
                         title='New Moment'
                         onPress={() => navigate('NewMoment', {groupId: state.params.groupId, name: state.params.name})}
                     />
-                    <Button
-                        title='Photos'
-                        onPress={() => navigate('PhotoTabs', {groupId: state.params.groupId, name: state.params.name})}
-                    />
                 </View>
             );
 

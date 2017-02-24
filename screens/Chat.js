@@ -10,6 +10,9 @@ import {
 import Exponent, {
   ImagePicker,
 } from 'exponent';
+import {
+    NavigationActions,
+} from 'react-navigation';
 
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
@@ -20,22 +23,47 @@ export default class Chat extends React.Component {
 
     static navigationOptions = {
         title: ({state}) => `${state.params.title}`,
-        header: ({navigate, state}) => {
+        header: ({dispatch, state}) => {
             let right = (
                 <Button
                     title='Moment'
-                    onPress={() => navigate('Moment', {
-                        groupId: state.params.groupId, 
-                        name: state.params.name, 
-                        momentId: state.params.momentId, 
-                        title: state.params.title
-                    })}
+                    onPress={() => {
+                    
+                        const {params} = state;
+                        const resetAction = NavigationActions.reset({
+                            index: 2,
+                            actions: [
+                                NavigationActions.navigate({ routeName: 'GroupList' }),
+                                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: state.params.groupId, name: state.params.name }}),
+                                NavigationActions.navigate({ routeName: 'Moment', params: {groupId: state.params.groupId, name: state.params.name, momentId: state.params.momentId, title: state.params.title}}),
+                            ]
+                        });
+
+                        dispatch(resetAction);
+                                    
+                        
+                    }}
                 />
             );
 
             return {right};
         }
     };
+
+    navigateToMoment = () => {
+        const {params} = this.props.navigation.state;
+        const resetAction = NavigationActions.reset({
+            index: 2,
+            actions: [
+                NavigationActions.navigate({ routeName: 'GroupList' }),
+                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: params.groupId, name: params.name }}),
+                NavigationActions.navigate({ routeName: 'Moment', params: {groupId: params.groupId, name: params.name, momentId: params.momentId, title: params.title}}),
+            ]
+        });
+
+        this.props.navigation.dispatch(resetAction);
+    }
+
     constructor(props){
         super(props);
         this.state = {messages: [], groupId: '', name: '', momentId: ''};

@@ -12,6 +12,9 @@ import {
 import Exponent, {
   ImagePicker,
 } from 'exponent';
+import {
+    NavigationActions
+} from 'react-navigation';
 
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
@@ -56,14 +59,24 @@ export default class NewMoment extends React.Component {
             })
             .then((r) => {
                 moment = r;
-                this.props.navigation.navigate('Moment',{
-                    groupId: moment.groupId, 
-                    name: this.props.navigation.state.params.name,
-                    momentId: moment._id,
-                    title: moment.title,
-                });
+
+                this.navigateToMoment(moment._id, moment.title);
             })
             .catch(e => console.log(e));
+    }
+
+    navigateToMoment = (momentId, title) => {
+        const {params} = this.props.navigation.state;
+        const resetAction = NavigationActions.reset({
+            index: 2,
+            actions: [
+                NavigationActions.navigate({ routeName: 'GroupList' }),
+                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: params.groupId, name: params.name }}),
+                NavigationActions.navigate({ routeName: 'Moment', params: {groupId: params.groupId, name: params.name, momentId: momentId, title: title}}),
+            ]
+        });
+
+        this.props.navigation.dispatch(resetAction);
     }
 
     render() {

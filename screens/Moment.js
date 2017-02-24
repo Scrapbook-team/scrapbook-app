@@ -29,18 +29,14 @@ export default class Moment extends React.Component {
             let right = (
                 <Button
                     title='Chat'
-                    onPress={() => navigate('Chat', {
-                        groupId: state.params.groupId, 
-                        name: state.params.name, 
-                        momentId: state.params.momentId, 
-                        title: state.params.title
-                    })}
+                    onPress={() => navigate('Chat', {groupId: state.params.groupId, name: state.params.name, momentId: state.params.momentId, title: state.params.title})}
                 />
             );
 
             return {right};
         }
     }
+
 
 
     constructor(props) {
@@ -148,10 +144,6 @@ export default class Moment extends React.Component {
             }
             </View>
         );
-    }
-
-    _openChat(groupId, name) {
-        this.props.navigation.navigate('MomentList', {groupId, name});
     }
 
 
