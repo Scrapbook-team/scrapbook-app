@@ -23,31 +23,6 @@ export default class Chat extends React.Component {
 
     static navigationOptions = {
         title: ({state}) => `${state.params.title}`,
-        header: ({dispatch, state}) => {
-            let right = (
-                <Button
-                    title='Moment'
-                    onPress={() => {
-                    
-                        const {params} = state;
-                        const resetAction = NavigationActions.reset({
-                            index: 2,
-                            actions: [
-                                NavigationActions.navigate({ routeName: 'GroupList' }),
-                                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: state.params.groupId, name: state.params.name }}),
-                                NavigationActions.navigate({ routeName: 'Moment', params: {groupId: state.params.groupId, name: state.params.name, momentId: state.params.momentId, title: state.params.title}}),
-                            ]
-                        });
-
-                        dispatch(resetAction);
-                                    
-                        
-                    }}
-                />
-            );
-
-            return {right};
-        }
     };
 
     navigateToMoment = () => {

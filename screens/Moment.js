@@ -12,6 +12,7 @@ import {
   Dimensions,
 } from 'react-native';
 
+import { Ionicons } from '@exponent/vector-icons';
 import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
@@ -27,10 +28,12 @@ export default class Moment extends React.Component {
         title: ({state}) => `${state.params.name}`,
         header: ({navigate, state}) => {
             let right = (
-                <Button
-                    title='Chat'
+                <TouchableHighlight
+                    style={{marginRight: 12}}
                     onPress={() => navigate('Chat', {groupId: state.params.groupId, name: state.params.name, momentId: state.params.momentId, title: state.params.title})}
-                />
+                    >
+                    <Ionicons name="ios-chatbubbles-outline" size={40} />                   
+                </TouchableHighlight>
             );
 
             return {right};
