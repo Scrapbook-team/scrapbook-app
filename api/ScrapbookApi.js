@@ -41,6 +41,17 @@ var ScrapbookApi = {
             })
         })
     },
+    // Get a list of contacts for a user
+    getContacts: function (token, userId) {
+        return fetch(apiUrl + '/users/' + userId + '/contacts', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            },
+        })
+    },            
     // Get a list of photos a user has uploaded.
     getUserPhotos: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/photos', {
@@ -61,6 +72,41 @@ var ScrapbookApi = {
                 'Content-Type': 'application/json',
                 'x-access-token': token
             }
+        })
+    },
+    // Get info for a single group
+    getGroup: function (token, groupId) {
+        return fetch(apiUrl + '/groups/' + groupId, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            }
+        })
+    },
+    // Edit a groups info
+    editGroup: function (token, groupId, newValues) {
+        return fetch(apiUrl + '/groups/' + groupId, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            },
+            body: JSON.stringify({newValues}),
+        })
+    },
+    // Add a member to a group.
+    addMember: function (token, groupId, memberId) {
+        return fetch(apiUrl + '/groups/' + groupId + '/members/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            },
+            body: JSON.stringify({memberId}),
         })
     },
     // Send a message in a group chat.

@@ -4,7 +4,7 @@ import MomentList from '../screens/MomentList';
 import Moment from '../screens/Moment';
 import NewMoment from '../screens/NewMoment';
 import Chat from '../screens/Chat';
-import { PhotoTabs } from './PhotoTabs';
+import GroupSettings from '../screens/GroupSettings';
 
 export const GroupStack = StackNavigator({
     GroupList: {
@@ -28,8 +28,8 @@ export const GroupStack = StackNavigator({
     Chat: {
         screen: Chat,
     },
-    PhotoTabs: {
-        screen: PhotoTabs,
+    GroupSettings: {
+        screen: GroupSettings,
     },
 }, {
     initialRouteName: 'GroupList',
