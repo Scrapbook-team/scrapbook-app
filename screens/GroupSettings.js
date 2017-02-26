@@ -9,7 +9,11 @@ import {
   TouchableHighlight,
   Modal,
   ListView,
+  Image,
 } from 'react-native';
+import Exponent, {
+  ImagePicker,
+} from 'exponent';
 import {
     NavigationActions,
 } from 'react-navigation';
@@ -39,6 +43,7 @@ export default class GroupSettings extends React.Component {
             editing: false, 
             addPeople: false,
             contactSearch: false,
+            profileUrl: '',
             members: members.cloneWithRows([]),
             contacts: contacts.cloneWithRows([]),
             searchContacts: searchContacts.cloneWithRows([]),
@@ -76,9 +81,14 @@ export default class GroupSettings extends React.Component {
                 console.log(group);
                 this.setState({
                     group,
+                    newName: group.name,
+                    newDescription: group.description,
+                    newProfile: group.profile._id,
                     loaded: true,
                     members: this.state.members.cloneWithRows(group.members),
                 });
+                if (group.profile)
+                    this.setState({profileUrl: group.profile.urls[0]});
             })
             .catch(e => console.log(e));
     }
@@ -89,13 +99,8 @@ export default class GroupSettings extends React.Component {
         ScrapbookApi.editGroup(this.state.token, params.groupId, newValues)
             .then(ApiUtils.checkStatus)
             .then((r) => {
-                return r.json();
-            })
-            .then((r) => {
-                var group = r;
-                this.setState({
-                    group,
-                });
+                console.log('Yo YO YO');
+                this.getGroup();
             })
             .catch(e => console.log(e));
 
@@ -169,11 +174,67 @@ export default class GroupSettings extends React.Component {
         );
     }
 
+    _pickImage = async () => {
+        const {params} = this.props.navigation.state;
+
+        let pickerResult = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: false,
+            aspect: [4,3]
+        });
+        var groupId = this.props.navigation.state.params.groupId;
+        this._handleImagePicked(this.state.token, pickerResult, groupId, this.state.userId);
+    }
+
+    _handleImagePicked = async (token, pickerResult, groupId, userId) => {
+        let uploadResponse, uploadResult;
+
+        try {
+            this.setState({uploading: true});
+
+            if (!pickerResult.cancelled) {
+                uploadResponse = await ScrapbookApi.addPhoto(token, pickerResult.uri, groupId, userId, "Name", "caption");
+                uploadResult = await uploadResponse.json();
+                this.setState({newProfile: uploadResult._id, profileUrl: uploadResult.urls[0]});
+            }
+        } catch(e) {
+            //console.log({uploadResponse});
+            //console.log({uploadResult});
+            console.log({e});
+            alert('Upload failed, sorry :(');
+        } finally {
+            this.setState({uploading: false});
+        }
+    }
+
+    _takePhoto() {
+        console.log('Take photo');
+   }
+    
+
+    openEditGroup() {
+        this.setState({
+            editing: true,
+            newName: this.state.group.name,
+            newDescription: this.state.group.description,
+            newProfile: this.state.group.profile._id,
+        });
+    }
+
+    closeEditGroup() {
+        this.setState({
+            editing: false,
+            newName: '',
+            newDescription: '',
+            newProfile: '',
+            profileUrl: this.state.group.profile.urls[0],
+        });
+    }
+
     render() {
         return (
             <View>
                 <Button
-                    onPress={() => this.setState({editing: true})}
+                    onPress={() => this.openEditGroup()}
                     title='Edit Group Info'
                 />
                 <Button
@@ -193,19 +254,35 @@ export default class GroupSettings extends React.Component {
                 <Modal
                     animationType={"slide"}
                     visible={this.state.editing}
-                    onRequestClose={() => this.setState({editing: false})}                   
+                    onRequestClose={() => this.closeEditGroup()}                   
                     >
                     <Text> Edit Group Info </Text>
                     <TextInput
-                        defaultValue={this.state.group.name}
+                        value={this.state.newName}
                         onChangeText={(text) => this.setState({newName: text})}
                     />
                     <TextInput
-                        defaultValue={this.state.group.description}
+                        value={this.state.newDescription}
                         onChangeText={(text) => this.setState({newDescription: text})}
                     />
+                    <Image
+                        source={{uri: this.state.profileUrl}}
+                        style={{width: 200, height: 200}}
+                    />
+                    <View>
+                        <Button
+                            onPress={this._pickImage}
+                            title="Pick Image"
+                            color="#841584"
+                        />
+                        <Button
+                            onPress={this._takePhoto}
+                            title="Take Photo"
+                            color="#841584"
+                        />
+                    </View>
                     <Button
-                        onPress={() => this.editGroup({name: this.state.newName, description: this.state.newDescription})}
+                        onPress={() => this.editGroup({name: this.state.newName, description: this.state.newDescription, profile: this.state.newProfile})}
                         title='Save'
                     />
                 </Modal>
