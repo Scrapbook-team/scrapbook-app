@@ -5,6 +5,7 @@ import Moment from '../screens/Moment';
 import NewMoment from '../screens/NewMoment';
 import Chat from '../screens/Chat';
 import GroupSettings from '../screens/GroupSettings';
+import Settings from '../screens/Settings';
 
 export const GroupStack = StackNavigator({
     GroupList: {
@@ -30,6 +31,9 @@ export const GroupStack = StackNavigator({
     },
     GroupSettings: {
         screen: GroupSettings,
+    },
+    Settings: {
+        screen: Settings,
     },
 }, {
     initialRouteName: 'GroupList',

@@ -17,6 +17,7 @@ import {
 } from 'react-navigation';
 import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
+import { Ionicons } from '@exponent/vector-icons';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
@@ -25,9 +26,18 @@ export default class GroupList extends React.Component {
 
     static navigationOptions = {
         title: 'Scrapbook',
-        drawer: () => ({
-            label: 'Groups',
-        }),
+        header: ({navigate, state}) => {
+            let right = (
+                <TouchableHighlight
+                    onPress={() => navigate('Settings')}
+                    style={{marginRight: 12}}
+                    >
+                    <Ionicons name="ios-settings-outline" size={40} />                   
+                </TouchableHighlight>
+            );
+
+            return {right};
+        }
     }
 
 

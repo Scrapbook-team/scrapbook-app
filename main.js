@@ -15,10 +15,10 @@ import {
 
 import Login from './screens/Login';
 import Register from './screens/Register';
-import { MainDrawer } from './components/MainDrawer';
+import { GroupStack } from './components/GroupStack';
 
 const ScrapbookApp = StackNavigator({
-    Home: { screen: MainDrawer },
+    Home: { screen: GroupStack },
     Login: {screen: Login },
     Register: {screen: Register },
 },
