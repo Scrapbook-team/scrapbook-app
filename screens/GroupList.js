@@ -8,6 +8,7 @@ import {
   ListView,
   AsyncStorage,
   TouchableHighlight,
+  Image,
 } from 'react-native';
 import Exponent, {
   Notifications,
@@ -117,17 +118,27 @@ export default class GroupList extends React.Component {
 
     _renderGroupListItem(data) {
         return (
-            <TouchableHighlight style={styles.container}
-                //onPress={() => navigation.navigate('Chat', {id: this.props.id, name: this.props.name})}
+            <TouchableHighlight style={styles.listItem}
                 onPress={this._openChat.bind(this, data._id, data.name)}
                 >
-                <View>
-                    <Text style={styles.name}>
-                        {`${data.name}`}
-                    </Text>
-                    <Text style={styles.description}>
-                        {`${data.description}`}
-                    </Text>
+                <View style={{flexDirection: 'row'}}>
+                    { data.profile &&
+                        <Image
+                            source={{uri: data.profile.urls[0]}}
+                            style={styles.profile}
+                        />
+                    }
+                    { !data.profile &&
+                        <View style={styles.defaultProfile}/>
+                    }
+                    <View>
+                        <Text style={styles.name}>
+                            {`${data.name}`}
+                        </Text>
+                        <Text style={styles.description}>
+                            {`${data.description}`}
+                        </Text>
+                    </View>
                 </View>
             </TouchableHighlight>
         );
@@ -159,5 +170,31 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
         flex: 1,
+    },
+    listItem: {
+        backgroundColor: '#fff',
+        flex: 1,
+        marginTop: 12,
+    },
+    profile: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginLeft: 12,
+    },
+    defaultProfile: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginLeft: 12,
+        backgroundColor: 'grey',
+    },
+    name: {
+        fontSize: 18,
+        marginLeft: 8,
+    },
+    description: {
+        fontSize: 14,
+        marginLeft: 8,
     },
 });
