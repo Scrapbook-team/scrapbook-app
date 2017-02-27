@@ -58,6 +58,7 @@ export default class GroupList extends React.Component {
 
     _handleNotification = (notification) => {
 
+        console.log(notification);
         if (notification.origin === 'selected' || notification.origin === 'received') {
             if (notification.data.momentId) {
 

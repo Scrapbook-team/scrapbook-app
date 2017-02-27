@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@exponent/vector-icons';
 import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
+import { Font } from 'exponent';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 import dateutil from 'dateutil';
@@ -41,7 +42,6 @@ export default class Moment extends React.Component {
     }
 
 
-
     constructor(props) {
         super(props);
 
@@ -52,7 +52,17 @@ export default class Moment extends React.Component {
         this.state = {
             dataSource: dataSource.cloneWithRows([]),
             loaded: false,
+            fontLoaded: false,
         };
+    }
+
+    async loadFonts() {
+        await Font.loadAsync({
+            'ArchitectsDaughter': require('../assets/fonts/ArchitectsDaughter.ttf'),
+            'Slabo': require('../assets/fonts/Slabo27px-Regular.ttf'),
+        });
+
+        this.setState({fontLoaded: true});
     }
 
     componentDidMount() {
@@ -70,6 +80,8 @@ export default class Moment extends React.Component {
                     });
                 }
             });
+
+        this.loadFonts();
     }
 
 
@@ -97,8 +109,9 @@ export default class Moment extends React.Component {
                 for (var i = 0; i < moment.notes.length; i++) {
                     blocks[moment.notes[i].position + 1] = moment.notes[i];
                 }
-                
 
+                blocks.push({footer: true});
+                
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(blocks),
                     loaded: true,
@@ -111,9 +124,10 @@ export default class Moment extends React.Component {
         const title = data.hasOwnProperty('title');
         const photo = data.hasOwnProperty('photo');
         const text = data.hasOwnProperty('text');
+        const footer = data.hasOwnProperty('footer');
         return (
             <View>
-            { title &&
+            { title && this.state.fontLoaded &&
                 <View style={styles.titleBlock}>
                     <Text style={styles.title}>
                         {`${data.title}`}
@@ -121,6 +135,7 @@ export default class Moment extends React.Component {
                     <Text style={styles.date}>
                         {`${data.date}`}
                     </Text>
+                    <View style={{ backgroundColor: 'black', height: 1, marginTop: 4, marginBottom: 20}} />
                 </View>
             }
             { photo &&
@@ -130,12 +145,14 @@ export default class Moment extends React.Component {
                         source={{uri: data.photo.urls[0]}}
                         resizeMode={'cover'}
                     />
-                    <Text style={styles.caption}>
-                        {`${data.caption}`}
-                    </Text>
+                    { this.state.fontLoaded &&
+                        <Text style={styles.caption}>
+                            {`${data.caption}`}
+                        </Text>
+                    }
                 </View>
             }
-            { text &&
+            { text && this.state.fontLoaded &&
                 <View>
                     <Text style={styles.noteText}>
                         {`\u201c${data.text}\u201d`}
@@ -144,6 +161,9 @@ export default class Moment extends React.Component {
                         {`-${data.user.firstName}`}
                     </Text>
                 </View>
+            }
+            { footer &&
+                <View style={{ backgroundColor: 'black', height: 1, marginHorizontal: 12, marginTop: 12, marginBottom: 32}} />
             }
             </View>
         );
@@ -174,17 +194,15 @@ const styles = StyleSheet.create({
     },
     titleBlock: {
         paddingHorizontal: 12,
-        flexWrap: 'nowrap',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
     },
     title: {
-        fontSize: 32,
+        fontSize: 40,
+        fontFamily: 'Slabo',
         textAlign: 'left',
     },
     date: {
-        fontSize: 12,
-        textAlign: 'right',
+        fontSize: 20,
+        fontFamily: 'Slabo',
     },
     momentImage: {
         width: width,
@@ -193,15 +211,20 @@ const styles = StyleSheet.create({
     caption: {
         paddingHorizontal: 12,
         fontSize: 16,
+        fontFamily: 'Slabo',
         color: '#2f4f4f',
+        marginBottom: 8,
     },
     noteText: {
         paddingHorizontal: 12,
         fontSize: 24,
+        fontFamily: 'ArchitectsDaughter',
     },
     noteAuthor: {
         paddingHorizontal: 12,
-        fontSize: 16,
+        fontSize: 20,
+        fontFamily: 'Slabo',
         textAlign: 'right',
+        marginBottom: 8,
     },
 });
