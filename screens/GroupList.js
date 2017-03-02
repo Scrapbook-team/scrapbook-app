@@ -9,6 +9,7 @@ import {
   AsyncStorage,
   TouchableHighlight,
   Image,
+  Modal,
 } from 'react-native';
 import Exponent, {
   Notifications,
@@ -49,6 +50,7 @@ export default class GroupList extends React.Component {
         this.state = {
             dataSource: dataSource.cloneWithRows([]),
             loaded: false,
+            newGroup: false,
         };
     }
 
@@ -154,6 +156,12 @@ export default class GroupList extends React.Component {
         const loaded = this.state.loaded;
         return (
             <View style={styles.container}>
+                <Modal
+                    animationType={'slide'}
+                    visible={this.state.newGroup}
+                    onRequestClose={() => this.setState({newGroup: false})}
+                >
+                </Modal>
             { loaded &&
                 <ListView
                     dataSource={this.state.dataSource}

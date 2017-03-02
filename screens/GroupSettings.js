@@ -7,9 +7,11 @@ import {
   View,
   AsyncStorage,
   TouchableHighlight,
+  TouchableOpacity,
   Modal,
   ListView,
   Image,
+  Dimensions,
 } from 'react-native';
 import Exponent, {
   ImagePicker,
@@ -22,8 +24,13 @@ import { StackNavigator } from 'react-navigation';
 import { MonoText } from '../components/StyledText';
 import { Ionicons } from '@exponent/vector-icons';
 
+import UserCell from '../components/UserCell';
+
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
+
+var width = Dimensions.get('window').width; //full width
+var height = Dimensions.get('window').height; //full height
 
 export default class GroupSettings extends React.Component {
 
@@ -152,27 +159,7 @@ export default class GroupSettings extends React.Component {
             .catch(e => console.log(e));
     }
     
-    _renderPersonListItem(data) {
-        return (
-            <View>
-                <Text style={styles.name}>
-                    {`${data.firstName + ' ' + data.lastName}`}
-                </Text>
-            </View>
-        );
-    }
-
-    _renderAddPersonListItem(data) {
-        return (
-            <TouchableHighlight
-                onPress={() => this.addMember(data._id)}
-            >
-                <Text>
-                    {`${data.firstName + ' ' + data.lastName}`}
-                </Text>
-            </TouchableHighlight>
-        );
-    }
+    
 
     _pickImage = async () => {
         const {params} = this.props.navigation.state;
@@ -230,23 +217,59 @@ export default class GroupSettings extends React.Component {
         });
     }
 
+    _renderMemberListItem(data) {
+        return (
+            <View style={styles.membersListItem} >
+                <Text style={styles.membersListText}>
+                    {`${data.firstName + ' ' + data.lastName}`}
+                </Text>
+            </View>
+        );
+    }
+
     render() {
         return (
-            <View>
-                <Button
-                    onPress={() => this.openEditGroup()}
-                    title='Edit Group Info'
-                />
-                <Button
-                    onPress={() => this.setState({addPeople: true})}
-                    title='Add People'
-                />
+            <View style={styles.container} >
             { this.state.loaded &&
                 <View>
-                    <Text>Members</Text>
+                    <Image
+                        source={{uri: this.state.profileUrl}}
+                        style={{width, height: 200}}
+                    >
+                        <View style={{flexGrow: 1}} />
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 12}}>
+                            <View>
+                                <Text style={styles.groupName}>
+                                    {this.state.group.name}
+                                </Text>
+                                <Text style={styles.description}>
+                                    {this.state.group.description}
+                                </Text>
+                            </View>
+                            <View>
+                                <Button
+                                    onPress={() => this.openEditGroup()}
+                                    title='Edit Group Info'
+                                />
+                            </View>
+                        </View>
+                    </Image>
+                </View>
+            }
+            { this.state.loaded &&
+                <View>
+                    <View style={styles.membersHeader} >
+                        <Text style={{fontSize: 20}}>Members</Text>
+                        <Button
+                            onPress={() => this.setState({addPeople: true})}
+                            title='Add People'
+                        />
+                    </View>
                     <ListView
                         dataSource={this.state.members}
-                        renderRow={this._renderPersonListItem.bind(this)}
+                        renderRow={(user) => (
+                            <UserCell {...user} />
+                        )}
                     />
                 </View>
             }
@@ -293,28 +316,61 @@ export default class GroupSettings extends React.Component {
                     visible={this.state.addPeople}
                     onRequestClose={() => this.setState({addPeople: false})}
                     >
-                    <Text>Members</Text>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}} >
+                        <Text style={{fontSize: 20, marginTop: 12, marginLeft: 12}}> 
+                            Add People 
+                        </Text>
+                        <Button
+                            onPress={() => this.setState({addPeople: false})}
+                            title='Done'
+                        />
+                    </View>
                     <ListView
                         dataSource={this.state.members}
-                        renderRow={this._renderPersonListItem.bind(this)}
+                        renderRow={this._renderMemberListItem.bind(this)}
+                        contentContainerStyle={styles.membersList}
                     />
-                    <Text> Add People </Text>
                     <TextInput
                         onChangeText={(text) => this.findContacts(text)}
+                        placeholder={'Find Contact'}
+                        style={{height: 40, marginHorizontal: 12}}
                     />
                     { this.state.contactSearch &&
                         <View>
-                            <Text>Search Users</Text>
-                            <ListView
-                                dataSource={this.state.searchContacts}
-                                renderRow={this._renderAddPersonListItem.bind(this)}
-                            />
+                            <Text style={{fontSize: 20}}>
+                                Search Users
+                            </Text>
+                            { this.state.searchContacts.getRowCount() != 0 &&
+                                <ListView
+                                    dataSource={this.state.searchContacts}
+                                    renderRow={(user) => (
+                                        <TouchableOpacity
+                                            onPress={() => this.addMember(user._id)}
+                                        >
+                                            <UserCell {...user} />
+                                        </TouchableOpacity>
+                                    )}
+                                />
+                            }
+                            { this.state.searchContacts.getRowCount() == 0 &&
+                                <Text>
+                                    No users found
+                                </Text>
+                            }
                         </View>
                     }
-                    <Text>My Contacts</Text>
+                    <Text style={{fontSize: 20, marginLeft: 12}}>
+                        My Contacts
+                    </Text>
                     <ListView
                         dataSource={this.state.contacts}
-                        renderRow={this._renderAddPersonListItem.bind(this)}
+                        renderRow={(user) => (
+                            <TouchableOpacity
+                                onPress={() => this.addMember(user._id)}
+                            >
+                                <UserCell {...user} />
+                            </TouchableOpacity>
+                        )}
                     />
                 </Modal>
             }
@@ -327,5 +383,77 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
         flex: 1,
+    },
+    membersHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 12,
+        marginHorizontal: 12,
+    },
+    listItem: {
+        backgroundColor: '#fff',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 12,
+        marginLeft: 12,
+        marginRight: 20,
+    },
+    addListItem: {
+        backgroundColor: '#fff',
+        flex: 1,
+        flexDirection: 'row',
+        marginTop: 12,
+        marginLeft: 12,
+        marginRight: 20,
+    },
+    profileWrapper: {
+        flexDirection: 'row',
+    },
+    profile: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    defaultProfile: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'grey',
+    },
+    profileName: {
+        fontSize: 16,
+        marginLeft: 12,
+        marginTop: 4,
+    },
+    groupName: {
+        fontSize: 20,
+        color: 'white',
+        textShadowOffset: {width: 1, height: 1}, 
+        textShadowRadius: 1, 
+        textShadowColor: 'black',
+    },
+    description: {
+        fontSize: 16,
+        color: 'white',
+        marginBottom: 12,
+        textShadowOffset: {width: 1, height: 1}, 
+        textShadowRadius: 1, 
+        textShadowColor: 'black',
+    },
+    membersList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    membersListItem: {
+        height: 24,
+        borderRadius: 12,
+        marginRight: 4,
+        marginBottom: 4,
+        backgroundColor: 'grey',
+    },
+    membersListText: {
+        color: 'white',
+        marginHorizontal: 12,
     },
 });
