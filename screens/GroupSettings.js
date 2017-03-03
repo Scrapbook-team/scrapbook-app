@@ -13,9 +13,6 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import Exponent, {
-  ImagePicker,
-} from 'exponent';
 import {
     NavigationActions,
 } from 'react-navigation';
@@ -25,6 +22,8 @@ import { MonoText } from '../components/StyledText';
 import { Ionicons } from '@exponent/vector-icons';
 
 import UserCell from '../components/UserCell';
+import ImageUpdater from '../components/ImageUpdater';
+import { pickImage } from '../utilities/ImageUtils';
 
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
@@ -158,28 +157,16 @@ export default class GroupSettings extends React.Component {
             })
             .catch(e => console.log(e));
     }
-    
-    
 
-    _pickImage = async () => {
-        const {params} = this.props.navigation.state;
-
-        let pickerResult = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: false,
-            aspect: [4,3]
-        });
-        var groupId = this.props.navigation.state.params.groupId;
-        this._handleImagePicked(this.state.token, pickerResult, groupId, this.state.userId);
-    }
-
-    _handleImagePicked = async (token, pickerResult, groupId, userId) => {
+    _handleImagePicked = async (pickerResult) => {
         let uploadResponse, uploadResult;
+        const {params} = this.props.navigation.state;
 
         try {
             this.setState({uploading: true});
 
             if (!pickerResult.cancelled) {
-                uploadResponse = await ScrapbookApi.addPhoto(token, pickerResult.uri, groupId, userId, "Name", "caption");
+                uploadResponse = await ScrapbookApi.addPhoto(this.state.token, pickerResult.uri, params.groupId, this.state.userId, "Name", "caption");
                 uploadResult = await uploadResponse.json();
                 this.setState({newProfile: uploadResult._id, profileUrl: uploadResult.urls[0]});
             }
@@ -192,10 +179,6 @@ export default class GroupSettings extends React.Component {
             this.setState({uploading: false});
         }
     }
-
-    _takePhoto() {
-        console.log('Take photo');
-   }
     
 
     openEditGroup() {
@@ -288,22 +271,10 @@ export default class GroupSettings extends React.Component {
                         value={this.state.newDescription}
                         onChangeText={(text) => this.setState({newDescription: text})}
                     />
-                    <Image
-                        source={{uri: this.state.profileUrl}}
-                        style={{width: 200, height: 200}}
+                    <ImageUpdater
+                        handleImagePicked={this._handleImagePicked}
+                        url={this.state.profileUrl}
                     />
-                    <View>
-                        <Button
-                            onPress={this._pickImage}
-                            title="Pick Image"
-                            color="#841584"
-                        />
-                        <Button
-                            onPress={this._takePhoto}
-                            title="Take Photo"
-                            color="#841584"
-                        />
-                    </View>
                     <Button
                         onPress={() => this.editGroup({name: this.state.newName, description: this.state.newDescription, profile: this.state.newProfile})}
                         title='Save'
@@ -389,42 +360,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginTop: 12,
         marginHorizontal: 12,
-    },
-    listItem: {
-        backgroundColor: '#fff',
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 12,
-        marginLeft: 12,
-        marginRight: 20,
-    },
-    addListItem: {
-        backgroundColor: '#fff',
-        flex: 1,
-        flexDirection: 'row',
-        marginTop: 12,
-        marginLeft: 12,
-        marginRight: 20,
-    },
-    profileWrapper: {
-        flexDirection: 'row',
-    },
-    profile: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-    },
-    defaultProfile: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: 'grey',
-    },
-    profileName: {
-        fontSize: 16,
-        marginLeft: 12,
-        marginTop: 4,
     },
     groupName: {
         fontSize: 20,
