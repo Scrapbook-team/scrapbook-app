@@ -88,6 +88,23 @@ var ScrapbookApi = {
             }
         })
     },
+    // Start a new groups
+    newGroup: function (token, userId, groupName, groupDescription='') {
+        return fetch(apiUrl+'/groups', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            },
+            body: JSON.stringify({
+                name: groupName,
+                description: groupDescription,
+                ownerId: userId,
+                members: [userId],
+            })
+        })
+    },
     // Get all the groups a user is part of.
     getGroups: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/groups', {

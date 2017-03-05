@@ -9,23 +9,30 @@ import {
   AsyncStorage,
 } from 'react-native';
 
+import * as Forms from 'tcomb-form-native';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
+const Registration = Forms.struct({
+    email: Forms.String,
+    password: Forms.String,
+    firstName: Forms.String,
+    lastName: Forms.String,
+});
+const Form = Forms.form.Form;
 
 export default class Register extends React.Component {
 
     static navigationOptions = {
-        title: 'Scrapbook',
-        drawer: () => ({
-            label: 'Register',
-        }),
+        header: {
+            visible: false,
+        },
     }
 
     constructor(props) {
         super(props);
-        this.state = {email: '', password: '', firstName: '', lastName: ''};
+        this.state = {registration: {}};
     }
 
     componentDidMount() {
@@ -33,20 +40,27 @@ export default class Register extends React.Component {
     }
 
     registerUser = () => {
-        ScrapbookApi.register(this.state.email, this.state.password, this.state.firstName, this.state.lastName)
+        Keyboard.dismiss();
+        reg = this.state.registration;
+        if(reg){
+            ScrapbookApi.register(reg.email, reg.password, reg.firstName, reg.lastName)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 return r.json();
             })
             .then((r) => {
                 user = r;
-                console.log(user);
-                this.setState({user});
-                AsyncStorage.setItem('Scrapbook:UserToken', user.token);
-                AsyncStorage.setItem('Scrapbook:UserId', user.id);
-                this.props.navigation.navigate('Home');
+                Promise.all([
+                    AsyncStorage.setItem('Scrapbook:UserToken', user.token),
+                    AsyncStorage.setItem('Scrapbook:UserId', user.id)
+                ]).then(this.props.navigation.navigate('Home'));
             })
             .catch(e => console.log(e));
+        }
+    }
+
+    login = () => {
+        this.props.navigation.navigate('Login');
     }
 
     render() {
@@ -54,35 +68,30 @@ export default class Register extends React.Component {
             <KeyboardAvoidingView
               behavior={'padding'}
               style={styles.container}>
-              <Text>
-                  Scrapbook
-              </Text>
-              <TextInput
-                  style={styles.textField}
-                  placeholder="Email"
-                  onChangeText={(email) => this.setState({email})}
-              />
-              <TextInput
-                  style={styles.textField}
-                  placeholder="Password"
-                  secureTextEntry={true}
-                  onChangeText={(password) => this.setState({password})}
-              />
-              <TextInput
-                  style={styles.textField}
-                  placeholder="First Name"
-                  onChangeText={(firstName) => this.setState({firstName})}
-              />
-              <TextInput
-                  style={styles.textField}
-                  placeholder="Last Name"
-                  onChangeText={(lastName) => this.setState({lastName})}
-              />
-              <Button
-                  onPress={this.registerUser}
-                  title="Register"
-                  color="#841584"
-              />
+              <View style={styles.titleCont}>
+                  <Text style={styles.title} >
+                      Scrapbook
+                  </Text>
+              </View>
+              <View>
+                  <Form
+                    ref="form"
+                    value={this.state.registration}
+                    onChange={registration => {this.setState({registration})}}
+                    type ={Registration}/>
+                  <Button
+                      onPress={this.registerUser}
+                      title="Register"
+                      color="#841584"
+                  />
+              </View>
+              <View style={styles.loginCont}>
+                  <Button
+                      onPress={this.login}
+                      title="Already have an account?"
+                      color="#841584"
+                  />
+              </View>
           </KeyboardAvoidingView>
         );
     }
@@ -95,7 +104,16 @@ const styles = StyleSheet.create({
         padding: 10,
         justifyContent: 'center',
     },
-    textField: {
-        height: 40,
+    titleCont: {
+      flexGrow: 1,
+      justifyContent: 'center',
+    },
+    title: {
+      textAlign: 'center',
+      fontSize: 24,
+    },
+    loginCont:{
+        flexGrow: 1,
+        justifyContent: 'center',
     }
 });

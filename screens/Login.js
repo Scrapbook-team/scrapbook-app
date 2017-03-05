@@ -20,6 +20,14 @@ const Credential = Forms.struct({
     email: Forms.String,
     password: Forms.String,
 });
+const options = {
+  fields: {
+    password: {
+      password: true,
+      secureTextEntry: true
+    }
+  }
+};
 const Form = Forms.form.Form;
 
 export default class Login extends React.Component {
@@ -53,22 +61,20 @@ export default class Login extends React.Component {
     loginUser = () => {
         Keyboard.dismiss();
         if(this.state.credential){
-            ScrapbookApi.login(this.state.credential.email, this.state.credential.password, this.state.exponentPushToken)
+        ScrapbookApi.login(this.state.credential.email, this.state.credential.password, this.state.exponentPushToken)
+            .then(ApiUtils.checkStatus)
             .then((r) => {
-                console.log(r.status);
-                if(r.status >= 200 && r.status < 300) {
-                    r.json().then((user) => {
-                        console.log(user.token);
-    //                        this.setState({user});
-                        Promise.all([
-                            AsyncStorage.setItem('Scrapbook:UserToken', user.token),
-                            AsyncStorage.setItem('Scrapbook:UserId', user.id)
-                        ]).then(this.props.navigation.navigate('Home'));
-                    })
-                } else {
-                    console.log("setting stuff")
-                    this.setState({credential: update(this.state.credential, {password: {$set: ''}}), showInvalid: true});
-                }
+                return r.json();
+            })
+            .then((r) => {
+                user = r;
+                Promise.all([
+                    AsyncStorage.setItem('Scrapbook:UserToken', user.token),
+                    AsyncStorage.setItem('Scrapbook:UserId', user.id)
+                ]).then(this.props.navigation.navigate('Home'));
+            })
+            .catch(e => {
+                this.setState({credential: update(this.state.credential, {password: {$set: ''}}), showInvalid: true});
             });
         }
     }
@@ -82,15 +88,18 @@ export default class Login extends React.Component {
             <KeyboardAvoidingView
               behavior={'padding'}
               style={styles.container}>
-              <Text style={styles.title} >
-                  Scrapbook
-              </Text>
-              <View>
+              <View style={styles.titleCont}>
+                  <Text style={styles.title} >
+                      Scrapbook
+                  </Text>
+              </View>
+              <View style={styles.form}>
                   <Form
                     ref="form"
                     value={this.state.credential}
                     onChange={credential => {this.setState({credential})}}
-                    type ={Credential}/>
+                    type ={Credential}
+                    options={options} />
                   <Button
                       onPress={this.loginUser}
                       title="LOGIN"
@@ -98,12 +107,13 @@ export default class Login extends React.Component {
                   />
                   {this.state.showInvalid && this.renderInvalid()}
               </View>
-              <Button
-                  style={styles.newAccount}
-                  onPress={this.register}
-                  title="CREATE NEW SCRAPBOOK ACCOUNT"
-                  color="#841584"
-              />
+              <View style={styles.newAccountCont}>
+                  <Button
+                      onPress={this.register}
+                      title="CREATE NEW SCRAPBOOK ACCOUNT"
+                      color="#841584"
+                  />
+              </View>
           </KeyboardAvoidingView>
         );
     }
@@ -127,17 +137,19 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         padding: 10,
-        justifyContent: 'space-around',
+        justifyContent: 'center',
     },
-    title:{
+    titleCont: {
+      flexGrow: 1,
+      justifyContent: 'center',
+    },
+    title: {
       textAlign: 'center',
       fontSize: 24,
     },
-    textField: {
-        height: 40,
-    },
-    newAccount: {
-        marginTop: 10,
+    newAccountCont: {
+        flexGrow: 1,
+        justifyContent: 'center',
     },
     invalidLogin: {
         color: 'crimson',
