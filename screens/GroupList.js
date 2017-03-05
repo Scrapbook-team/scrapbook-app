@@ -29,12 +29,20 @@ export default class GroupList extends React.Component {
         title: 'Scrapbook',
         header: ({navigate, state}) => {
             let right = (
-                <TouchableHighlight
-                    onPress={() => navigate('Settings')}
-                    style={{marginRight: 12}}
-                    >
-                    <Ionicons name="ios-settings-outline" size={40} />                   
-                </TouchableHighlight>
+                <View style={{flexDirection: 'row'}} >
+                    <TouchableHighlight
+                        onPress={() => navigate('NewGroup')}
+                        style={{marginRight: 12}}
+                        >
+                        <Ionicons name="ios-add" size={48} />                   
+                    </TouchableHighlight>
+                    <TouchableHighlight
+                        onPress={() => navigate('Settings')}
+                        style={{marginRight: 12}}
+                        >
+                        <Ionicons name="ios-settings-outline" size={40} />                   
+                    </TouchableHighlight>
+                </View>
             );
 
             return {right};
