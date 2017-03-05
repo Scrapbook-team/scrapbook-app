@@ -166,7 +166,7 @@ export default class GroupSettings extends React.Component {
             this.setState({uploading: true});
 
             if (!pickerResult.cancelled) {
-                uploadResponse = await ScrapbookApi.addPhoto(this.state.token, pickerResult.uri, params.groupId, this.state.userId, "Name", "caption");
+                uploadResponse = await ScrapbookApi.addPhoto(this.state.token, pickerResult.uri, params.groupId);
                 uploadResult = await uploadResponse.json();
                 this.setState({newProfile: uploadResult._id, profileUrl: uploadResult.urls[0]});
             }

@@ -41,6 +41,31 @@ var ScrapbookApi = {
             })
         })
     },
+    // Get a user by id
+    getUser: function (token, userId) {
+        return fetch(apiUrl + '/users/' + userId, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            },
+        })
+    },
+    // Update a user
+    editUser: function (token, userId, newValues) {
+        return fetch(apiUrl + '/users/' + userId, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            },
+            body: JSON.stringify({
+                newValues,
+            })
+        })
+    },
     // Get a list of contacts for a user
     getContacts: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/contacts', {
@@ -185,15 +210,18 @@ var ScrapbookApi = {
         })
     },
     // Upload a photo to the api, and add it to a group.
-    addPhoto: function (token, uri, groupId, ownerId, name, caption) {
+    addPhoto: function (token, uri, groupId) {
         let uriParts = uri.split('.');
         let fileType = uriParts[uriParts.length - 1];
 
         let formData = new FormData();
 
-        formData.append('name', name);
-        formData.append('caption', caption);
-        formData.append('ownerId', ownerId);
+        formData.append('name', "hola");
+        formData.append('caption', "hola");
+        if (groupId) 
+            formData.append('groupId', groupId);
+
+        console.log(groupId);
 
         formData.append('photo', {
             uri,
@@ -211,7 +239,7 @@ var ScrapbookApi = {
                 'x-access-token': token,
             },
         };
-        return fetch(apiUrl + '/groups/' + groupId + '/photos', options);
+        return fetch(apiUrl + '/photos', options);
     },
     // Find contacts based on a query.
     findContacts: function (token, query) {

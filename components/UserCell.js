@@ -11,7 +11,7 @@ export default (user) => (
     <View style={styles.profileWrapper}>
         { user.profile &&
             <Image
-                source={user.profile.urls[0]}
+                source={{uri: user.profile.urls[0]}}
                 style={styles.profile}
             />
         }
