@@ -30,7 +30,7 @@ export const GroupStack = StackNavigator({
     },
     NewMoment: {
         screen: NewMoment,
-    }
+    },
     Chat: {
         screen: Chat,
     },
