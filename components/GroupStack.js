@@ -9,8 +9,6 @@ import Settings from '../screens/Settings';
 import { PhotoTabs } from './PhotoTabs';
 import NewGroup from '../screens/NewGroup';
 
->>>>>>> 98d2c1365fcf7e5e7fe68db09766edc3417196ca
-
 export const GroupStack = StackNavigator({
     GroupList: {
         screen: GroupList,
@@ -44,5 +42,5 @@ export const GroupStack = StackNavigator({
     },
 }, {
     initialRouteName: 'GroupList',
-    headerMode: 'screen',   
+    headerMode: 'screen',
 });
