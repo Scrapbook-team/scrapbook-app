@@ -8,6 +8,7 @@ import {
   View,
   AsyncStorage,
   Keyboard,
+  ListView,
 } from 'react-native';
 import {
     NavigationActions
@@ -16,6 +17,10 @@ import {
 import * as Forms from 'tcomb-form-native';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
+
+import MemberPill from '../components/MemberPill';
+import FindUser from '../components/FindUser';
+import ImageUpdater from '../components/ImageUpdater';
 
 const Group = Forms.struct({
     name: Forms.String,
@@ -30,9 +35,16 @@ export default class NewGroup extends React.Component {
 
     constructor(props) {
         super(props);
+
+        const members = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
         this.state = {
             group: {},
             page: 0,
+            members: members.cloneWithRows([]),
+            memberData: [],
+            profile: '',
+            profileUrl: '',
         };
     }
 
@@ -59,12 +71,85 @@ export default class NewGroup extends React.Component {
 
         this.props.navigation.dispatch(resetAction);
     }
+    
+    getContacts() {
+        ScrapbookApi.getContacts(this.state.token, this.state.userId)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                return r.json();
+            })
+            .then((r) => {
+                var contacts = r;
+                this.setState({
+                    contacts: this.state.contacts.cloneWithRows(contacts.contacts),
+                });
+            })
+            .catch(e => console.log(e));
+    }
+
+    findContacts(query) {
+        if (query === '') {
+            this.setState({contactSearch: false});
+        } else {
+            this.setState({contactSearch: true});
+        }
+
+        ScrapbookApi.findContacts(this.state.token, query)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                return r.json();
+            })
+            .then((r) => {
+                var contacts = r;
+                this.setState({
+                    searchContacts: this.state.searchContacts.cloneWithRows(contacts),
+                });
+            })
+            .catch(e => console.log(e));
+    }
+
+    addMember(user) {
+        var data = this.state.memberData;
+        //Check for duplicates at some point
+        data.push(user);
+
+        this.setState({
+            members: this.state.members.cloneWithRows(data),
+            memberData: data,
+        });
+    }
+
+    _handleImagePicked = async (pickerResult) => {
+        let uploadResponse, uploadResult;
+        const {params} = this.props.navigation.state;
+
+        try {
+            this.setState({uploading: true});
+
+            if (!pickerResult.cancelled) {
+                uploadResponse = await ScrapbookApi.addPhoto(this.state.token, pickerResult.uri);
+                uploadResult = await uploadResponse.json();
+                this.setState({profile: uploadResult._id, profileUrl: uploadResult.urls[0]});
+            }
+        } catch(e) {
+            console.log({e});
+            alert('Upload failed, sorry :(');
+        } finally {
+            this.setState({uploading: false});
+        }
+    }
 
     newGroup = () => {
         Keyboard.dismiss();
         group = this.state.group;
+
+        
         if(group){
-            ScrapbookApi.newGroup(this.state.token, this.state.userId, group.name, group.description)
+
+            let members = this.state.memberData.map((currentValue) => { return currentValue._id });
+            members.push(this.state.userId);
+
+            ScrapbookApi.newGroup(this.state.token, group.name, group.description, members, this.state.profile)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 return r.json();
@@ -99,9 +184,20 @@ export default class NewGroup extends React.Component {
                 }
                 { this.state.page == 1 &&
                     <View>
-                        <Text> Page 2 </Text>
+                        <ListView
+                            dataSource={this.state.members}
+                            renderRow={(member) => (
+                                <MemberPill {...member} />
+                            )}
+                            contentContainerStyle={{flexDirection: 'row', flexWrap: 'wrap'}}
+                        />
+                        <FindUser
+                            token={this.state.token}
+                            userId={this.state.userId}
+                            selectUser={this.addMember.bind(this)}
+                        />
                         <Button
-                            onPress={() => this.setState({page: 1})}
+                            onPress={() => this.setState({page: 0})}
                             title="Back"
                             color="#841584"
                         />
@@ -114,9 +210,13 @@ export default class NewGroup extends React.Component {
                 }
                 { this.state.page == 2 &&
                     <View>
-                        <Text> Page 3 </Text>
+                        <Text> Set Group Photo </Text>
+                        <ImageUpdater
+                            handleImagePicked={this._handleImagePicked}
+                            url={this.state.profileUrl}
+                        />
                         <Button
-                            onPress={() => this.setState({page: 2})}
+                            onPress={() => this.setState({page: 1})}
                             title="Back"
                             color="#841584"
                         />

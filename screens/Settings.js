@@ -94,7 +94,7 @@ export default class Settings extends React.Component {
                 uploadResponse = await ScrapbookApi.addPhoto(this.state.token, pickerResult.uri, null);
                 uploadResult = await uploadResponse.json();
                 this.setState({newProfile: uploadResult._id, profileUrl: uploadResult.urls[0]});
-                console.log(this.state.profileUrl);
+                console.log(pickerResult.uri);
             }
         } catch(e) {
             //console.log({uploadResponse});

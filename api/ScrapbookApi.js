@@ -89,7 +89,7 @@ var ScrapbookApi = {
         })
     },
     // Start a new groups
-    newGroup: function (token, userId, groupName, groupDescription='') {
+    newGroup: function (token, groupName, groupDescription='', members, profile) {
         return fetch(apiUrl+'/groups', {
             method: 'POST',
             headers: {
@@ -100,8 +100,8 @@ var ScrapbookApi = {
             body: JSON.stringify({
                 name: groupName,
                 description: groupDescription,
-                ownerId: userId,
-                members: [userId],
+                members,
+                profile,
             })
         })
     },
