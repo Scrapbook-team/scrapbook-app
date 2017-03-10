@@ -7,6 +7,7 @@ import {
   Button,
   View,
   AsyncStorage,
+  Keyboard,
 } from 'react-native';
 
 import * as Forms from 'tcomb-form-native';
@@ -35,9 +36,6 @@ export default class Register extends React.Component {
         this.state = {registration: {}};
     }
 
-    componentDidMount() {
-
-    }
 
     registerUser = () => {
         Keyboard.dismiss();
@@ -53,7 +51,7 @@ export default class Register extends React.Component {
                 Promise.all([
                     AsyncStorage.setItem('Scrapbook:UserToken', user.token),
                     AsyncStorage.setItem('Scrapbook:UserId', user.id)
-                ]).then(this.props.navigation.navigate('Home'));
+                ]).then(this.props.navigation.navigate('AddContacts'));
             })
             .catch(e => console.log(e));
         }
@@ -65,34 +63,36 @@ export default class Register extends React.Component {
 
     render() {
         return (
-            <KeyboardAvoidingView
-              behavior={'padding'}
-              style={styles.container}>
-              <View style={styles.titleCont}>
-                  <Text style={styles.title} >
-                      Scrapbook
-                  </Text>
-              </View>
-              <View>
-                  <Form
-                    ref="form"
-                    value={this.state.registration}
-                    onChange={registration => {this.setState({registration})}}
-                    type ={Registration}/>
-                  <Button
-                      onPress={this.registerUser}
-                      title="Register"
-                      color="#841584"
-                  />
-              </View>
-              <View style={styles.loginCont}>
-                  <Button
-                      onPress={this.login}
-                      title="Already have an account?"
-                      color="#841584"
-                  />
-              </View>
-          </KeyboardAvoidingView>
+            <View style={styles.container} >
+                <KeyboardAvoidingView
+                  behavior={'padding'}
+                  style={styles.container}>
+                  <View style={styles.titleCont}>
+                      <Text style={styles.title} >
+                          Scrapbook
+                      </Text>
+                  </View>
+                  <View>
+                      <Form
+                        ref="form"
+                        value={this.state.registration}
+                        onChange={registration => {this.setState({registration})}}
+                        type ={Registration}/>
+                      <Button
+                          onPress={this.registerUser}
+                          title="Register"
+                          color="#841584"
+                      />
+                  </View>
+                  <View style={styles.loginCont}>
+                      <Button
+                          onPress={this.login}
+                          title="Already have an account?"
+                          color="#841584"
+                      />
+                  </View>
+              </KeyboardAvoidingView>
+          </View>
         );
     }
 }

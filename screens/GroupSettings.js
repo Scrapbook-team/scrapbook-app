@@ -91,13 +91,12 @@ export default class GroupSettings extends React.Component {
                     group,
                     newName: group.name,
                     newDescription: group.description,
-                    newProfile: group.profile._id,
                     loaded: true,
                     members: this.state.members.cloneWithRows(group.members),
                     membersList: group.members,
                 });
                 if (group.profile)
-                    this.setState({profileUrl: group.profile.urls[0]});
+                    this.setState({newProfile: group.profile._id, profileUrl: group.profile.urls[0]});
             })
             .catch(e => console.log(e));
     }
@@ -185,6 +184,7 @@ export default class GroupSettings extends React.Component {
     
 
     openEditGroup() {
+
         this.setState({
             editing: true,
             newName: this.state.group.name,

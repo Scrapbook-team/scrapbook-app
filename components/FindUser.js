@@ -27,6 +27,7 @@ export default class FindUser extends React.Component {
         const searchContacts = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = { 
             contactSearch: false,
+            hasContacts: false,
             contacts: contacts.cloneWithRows([]),
             searchContacts: searchContacts.cloneWithRows([]),
         };
@@ -44,7 +45,10 @@ export default class FindUser extends React.Component {
             })
             .then((r) => {
                 var contacts = r;
+                var hasContacts = true;
+                if (contacts.contacts.length == 0) hasContacts = false;
                 this.setState({
+                    hasContacts,
                     contacts: this.state.contacts.cloneWithRows(contacts.contacts),
                 });
             })
@@ -82,7 +86,7 @@ export default class FindUser extends React.Component {
             />
             { this.state.contactSearch &&
                 <View>
-                    <Text style={{fontSize: 20}}>
+                    <Text style={styles.header}>
                         Search Users
                     </Text>
                     { this.state.searchContacts.getRowCount() != 0 &&
@@ -99,25 +103,29 @@ export default class FindUser extends React.Component {
                         />
                     }
                     { this.state.searchContacts.getRowCount() == 0 &&
-                        <Text>
+                        <Text style={{marginLeft: 12}}>
                             No users found
                         </Text>
                     }
                 </View>
             }
-            <Text style={{fontSize: 20, marginLeft: 12}}>
-                My Contacts
-            </Text>
-            <ListView
-                dataSource={this.state.contacts}
-                renderRow={(user) => (
-                    <TouchableOpacity
-                        onPress={() => this.props.selectUser(user)}
-                    >
-                        <UserCell {...user} />
-                    </TouchableOpacity>
-                )}
-            />
+            { this.state.hasContacts &&
+                <View>
+                    <Text style={styles.header}>
+                        My Contacts
+                    </Text>
+                    <ListView
+                        dataSource={this.state.contacts}
+                        renderRow={(user) => (
+                            <TouchableOpacity
+                                onPress={() => this.props.selectUser(user)}
+                            >
+                                <UserCell {...user} />
+                            </TouchableOpacity>
+                        )}
+                    />
+                </View>
+            }
         </View>
     )}
 }
@@ -128,3 +136,11 @@ FindUser.propTypes = {
     userId: React.PropTypes.string.isRequired,
     selectUser: React.PropTypes.func.isRequired,
 };
+
+const styles = StyleSheet.create({
+    header: {
+        fontSize: 20,
+        marginLeft: 12,
+    },
+
+});
