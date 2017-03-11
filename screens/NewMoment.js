@@ -20,6 +20,7 @@ import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
 import ApiUtils from '../utilities/ApiUtils';
 
+import ImageUpdater from '../components/ImageUpdater';
 
 export default class NewMoment extends React.Component {
 
@@ -29,7 +30,12 @@ export default class NewMoment extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {title: '', uploaded: false};
+        this.state = {
+            title: '', 
+            uploaded: false,
+            imageUrl: '',
+            photo: '',
+        };
     }
 
     componentDidMount() {
@@ -52,7 +58,9 @@ export default class NewMoment extends React.Component {
     }
 
     createMoment = () => {
-        ScrapbookApi.newMoment(this.state.token, this.props.navigation.state.params.groupId, this.state.title, this.state.photo._id, this.state.caption)
+        console.log(this.state.title);
+        console.log("hell");
+        ScrapbookApi.newMoment(this.state.token, this.props.navigation.state.params.groupId, this.state.title, this.state.photo, this.state.caption)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 return r.json();
@@ -60,6 +68,7 @@ export default class NewMoment extends React.Component {
             .then((r) => {
                 moment = r;
 
+                console.log("Hi");
                 this.navigateToMoment(moment._id, moment.title);
             })
             .catch(e => console.log(e));
@@ -89,32 +98,16 @@ export default class NewMoment extends React.Component {
                     placeholder="Title"
                     onChangeText={(title) => this.setState({title})}
                 />
+                <ImageUpdater
+                    handleImagePicked={this._handleImagePicked}
+                    url={this.state.imageUrl}
+                />
                 { this.state.uploaded &&
-                    <View>
-                        <Image
-                            style={{width: 200, height: 200}}
-                            source={{uri: this.state.photo.urls[0]}}
-                        />
-                        <TextInput
-                            style={styles.textField}
-                            placeholder="Caption"
-                            onChangeText={(caption) => this.setState({caption})}
-                        />
-                    </View>
-                }
-                { !this.state.uploaded &&
-                <View>
-                   <Button
-                      onPress={this._pickImage}
-                      title="Pick Image"
-                      color="#841584"
-                  />
-                  <Button
-                      onPress={this._takePhoto}
-                      title="Take Photo"
-                      color="#841584"
-                  />
-                </View>
+                    <TextInput
+                        style={styles.textField}
+                        placeholder="Caption"
+                        onChangeText={(caption) => this.setState({caption})}
+                    />
                 }
                 <Button
                     onPress={this.createMoment}
@@ -124,32 +117,19 @@ export default class NewMoment extends React.Component {
             </KeyboardAvoidingView>
         );
     }
-
-
-    _pickImage = async () => {
-        const {params} = this.props.navigation.state;
-
-        let pickerResult = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: false,
-            aspect: [4,3]
-        });
-        console.log("Group");
-        console.log(this.props.navigation.state.params);
-        var groupId = this.props.navigation.state.params.groupId;
-        this._handleImagePicked(this.state.token, pickerResult, groupId, this.state.userId);
-    }
-
-    _handleImagePicked = async (token, pickerResult, groupId, userId) => {
+    
+    _handleImagePicked = async (pickerResult) => {
         let uploadResponse, uploadResult;
+        const {params} = this.props.navigation.state;
 
         try {
             this.setState({uploading: true});
 
             if (!pickerResult.cancelled) {
-                uploadResponse = await ScrapbookApi.addPhoto(token, pickerResult.uri, groupId, userId, "Name", "caption");
+                uploadResponse = await ScrapbookApi.addPhoto(this.state.token, pickerResult.uri, params.groupId);
                 uploadResult = await uploadResponse.json();
-                this.setState({photo: uploadResult, uploaded: true});
-                console.log(this.state.image);
+                this.setState({photo: uploadResult._id, imageUrl: uploadResult.urls[0], uploaded: true});
+                console.log(this.state.photo); 
             }
         } catch(e) {
             //console.log({uploadResponse});
@@ -161,9 +141,8 @@ export default class NewMoment extends React.Component {
         }
     }
 
-    _takePhoto() {
-        console.log('Take photo');
-   }
+
+
 
 }
 
