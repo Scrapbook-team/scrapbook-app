@@ -23,6 +23,7 @@ import { Ionicons } from '@exponent/vector-icons';
 
 import UserCell from '../components/UserCell';
 import ImageUpdater from '../components/ImageUpdater';
+import MemberPill from '../components/MemberPill';
 import { pickImage } from '../utilities/ImageUtils';
 
 import ScrapbookApi from '../api/ScrapbookApi';
@@ -53,6 +54,7 @@ export default class GroupSettings extends React.Component {
             members: members.cloneWithRows([]),
             contacts: contacts.cloneWithRows([]),
             searchContacts: searchContacts.cloneWithRows([]),
+            membersList: [],
         };
     }
 
@@ -89,12 +91,12 @@ export default class GroupSettings extends React.Component {
                     group,
                     newName: group.name,
                     newDescription: group.description,
-                    newProfile: group.profile._id,
                     loaded: true,
                     members: this.state.members.cloneWithRows(group.members),
+                    membersList: group.members,
                 });
                 if (group.profile)
-                    this.setState({profileUrl: group.profile.urls[0]});
+                    this.setState({newProfile: group.profile._id, profileUrl: group.profile.urls[0]});
             })
             .catch(e => console.log(e));
     }
@@ -182,6 +184,7 @@ export default class GroupSettings extends React.Component {
     
 
     openEditGroup() {
+
         this.setState({
             editing: true,
             newName: this.state.group.name,
@@ -198,16 +201,6 @@ export default class GroupSettings extends React.Component {
             newProfile: '',
             profileUrl: this.state.group.profile.urls[0],
         });
-    }
-
-    _renderMemberListItem(data) {
-        return (
-            <View style={styles.membersListItem} >
-                <Text style={styles.membersListText}>
-                    {`${data.firstName + ' ' + data.lastName}`}
-                </Text>
-            </View>
-        );
     }
 
     render() {
@@ -298,8 +291,10 @@ export default class GroupSettings extends React.Component {
                     </View>
                     <ListView
                         dataSource={this.state.members}
-                        renderRow={this._renderMemberListItem.bind(this)}
-                        contentContainerStyle={styles.membersList}
+                        renderRow={(member) => (
+                            <MemberPill {...member} />
+                        )}
+                        contentContainerStyle={{flexDirection: 'row', flexWrap: 'wrap'}}
                     />
                     <TextInput
                         onChangeText={(text) => this.findContacts(text)}

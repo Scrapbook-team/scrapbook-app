@@ -12,12 +12,6 @@ import NewGroup from '../screens/NewGroup';
 export const GroupStack = StackNavigator({
     GroupList: {
         screen: GroupList,
-        navigationOptions: {
-            title: 'Scrapbook',
-            drawer: () => ({
-                label: 'Groups',
-            }),
-        }
     },
     NewGroup: {
         screen: NewGroup,

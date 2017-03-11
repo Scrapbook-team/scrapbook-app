@@ -29,12 +29,20 @@ export default class GroupList extends React.Component {
         title: 'Scrapbook',
         header: ({navigate, state}) => {
             let right = (
-                <TouchableHighlight
-                    onPress={() => navigate('Settings')}
-                    style={{marginRight: 12}}
-                    >
-                    <Ionicons name="ios-settings-outline" size={40} />                   
-                </TouchableHighlight>
+                <View style={{flexDirection: 'row'}} >
+                    <TouchableHighlight
+                        onPress={() => navigate('NewGroup')}
+                        style={{marginRight: 12}}
+                        >
+                        <Ionicons name="ios-add" size={48} />                   
+                    </TouchableHighlight>
+                    <TouchableHighlight
+                        onPress={() => navigate('Settings')}
+                        style={{marginRight: 12}}
+                        >
+                        <Ionicons name="ios-settings-outline" size={40} />                   
+                    </TouchableHighlight>
+                </View>
             );
 
             return {right};
@@ -61,22 +69,61 @@ export default class GroupList extends React.Component {
 
         console.log(notification);
         if (notification.origin === 'selected' || notification.origin === 'received') {
-            if (notification.data.momentId) {
-
-                const data = notification.data;
-                const resetAction = NavigationActions.reset({
-                    index: 2,
-                    actions: [
-                        NavigationActions.navigate({ routeName: 'GroupList' }),
-                        NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: data.groupId, name: data.name }}),
-                        NavigationActions.navigate({ routeName: 'Moment', params: {groupId: data.groupId, name: data.name, momentId: data.momentId, title: data.title}}),
-                    ]
-                });
-
-                this.props.navigation.dispatch(resetAction);
+            switch (notification.data.type) {
+                case 'message':
+                    this._navigateToChat(notification.data);
+                    break;
+                case 'moment':
+                case 'memory':
+                    this._navigateToMoment(notification.data);
+                    break;
+                case 'newGroup':
+                case 'addMember':
+                    this._navigateToGroup(notification.data);
+                    break;
             }
+
         }
     };
+
+    _navigateToGroup(data) {
+        const resetAction = NavigationActions.reset({
+            index: 1,
+            actions: [
+                NavigationActions.navigate({ routeName: 'GroupList' }),
+                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: data.groupId, name: data.name }}),
+            ]
+        });
+
+        this.props.navigation.dispatch(resetAction);
+    }
+
+    _navigateToMoment(data) {
+        const resetAction = NavigationActions.reset({
+            index: 2,
+            actions: [
+                NavigationActions.navigate({ routeName: 'GroupList' }),
+                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: data.groupId, name: data.name }}),
+                NavigationActions.navigate({ routeName: 'Moment', params: {groupId: data.groupId, name: data.name, momentId: data.momentId, title: data.title}}),
+            ]
+        });
+
+        this.props.navigation.dispatch(resetAction);
+    }
+
+    _navigateToChat(data) {
+        const resetAction = NavigationActions.reset({
+            index: 3,
+            actions: [
+                NavigationActions.navigate({ routeName: 'GroupList' }),
+                NavigationActions.navigate({ routeName: 'MomentList', params: { groupId: data.groupId, name: data.name }}),
+                NavigationActions.navigate({ routeName: 'Moment', params: {groupId: data.groupId, name: data.name, momentId: data.momentId, title: data.title}}),
+                NavigationActions.navigate({ routeName: 'Chat', params: {groupId: data.groupId, name: data.name, momentId: data.momentId, title: data.title}}),
+            ]
+        });
+
+        this.props.navigation.dispatch(resetAction);
+    }
 
     componentDidMount() {
         AsyncStorage.getItem('Scrapbook:UserToken')

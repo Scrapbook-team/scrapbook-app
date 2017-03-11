@@ -66,6 +66,20 @@ var ScrapbookApi = {
             })
         })
     },
+    // Add a contact for a user
+    addContact: function (token, userId, contactId) {
+        return fetch(apiUrl + '/users/' + userId + '/contacts', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            },
+            body: JSON.stringify({
+                contactId,
+            })
+        })
+    },
     // Get a list of contacts for a user
     getContacts: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/contacts', {
@@ -89,7 +103,7 @@ var ScrapbookApi = {
         })
     },
     // Start a new groups
-    newGroup: function (token, userId, groupName, groupDescription='') {
+    newGroup: function (token, groupName, groupDescription='', members, profile) {
         return fetch(apiUrl+'/groups', {
             method: 'POST',
             headers: {
@@ -100,8 +114,8 @@ var ScrapbookApi = {
             body: JSON.stringify({
                 name: groupName,
                 description: groupDescription,
-                ownerId: userId,
-                members: [userId],
+                members,
+                profile,
             })
         })
     },
