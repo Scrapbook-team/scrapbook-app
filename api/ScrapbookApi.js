@@ -76,7 +76,7 @@ var ScrapbookApi = {
                 'x-access-token': token
             },
         })
-    },            
+    },
     // Get a list of photos a user has uploaded.
     getUserPhotos: function (token, userId) {
         return fetch(apiUrl + '/users/' + userId + '/photos', {
@@ -152,7 +152,7 @@ var ScrapbookApi = {
         })
     },
     // Send a message in a group chat.
-    sendMessage: function (token, momentId, text, photoId) {
+    sendMessage: function (token, momentId, text, photo) {
         return fetch(apiUrl + '/moments/' + momentId + '/messages', {
             method: 'POST',
             headers: {
@@ -162,7 +162,7 @@ var ScrapbookApi = {
             },
             body: JSON.stringify({
                 text,
-                photoId,
+                photo
             })
         })
     },
@@ -185,7 +185,7 @@ var ScrapbookApi = {
         var body = {
             title,
             photos: [
-                { 
+                {
                     photo: photoId,
                     caption: caption,
                     position: 0,
@@ -226,26 +226,25 @@ var ScrapbookApi = {
             }
         })
     },
-    // Upload a photo to the api, and add it to a group.
-    addPhoto: function (token, uri, groupId) {
-        let uriParts = uri.split('.');
-        let fileType = uriParts[uriParts.length - 1];
 
+    // Upload a photo to the api, and add it to a group.
+    addPhoto: function (token, uri, groupId, fileExt) {
+        if(fileExt == null){
+            let uriParts = uri.split('.');
+            fileExt = uriParts[uriParts.length - 1];
+        }
         let formData = new FormData();
 
         formData.append('name', "hola");
         formData.append('caption', "hola");
-        if (groupId) 
+        if (groupId)
             formData.append('groupId', groupId);
-
-        console.log(groupId);
 
         formData.append('photo', {
             uri,
-            name: `photo.${fileType}`,
-            type: `image/${fileType}`,
+            name: `photo.${fileExt}`,
+            type: `image/${fileExt}`,
         });
-
 
         let options = {
             method: 'POST',

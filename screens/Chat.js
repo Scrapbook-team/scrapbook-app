@@ -3,9 +3,11 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   Button,
   View,
   AsyncStorage,
+  Keyboard,
 } from 'react-native';
 import Exponent, {
   ImagePicker,
@@ -14,9 +16,12 @@ import {
     NavigationActions,
 } from 'react-navigation';
 
+import CameraRollPicker from 'react-native-camera-roll-picker';
 import { MonoText } from '../components/StyledText';
 import ScrapbookApi from '../api/ScrapbookApi';
+import { Ionicons } from '@exponent/vector-icons';
 import ApiUtils from '../utilities/ApiUtils';
+import FixedKeyboardAvoidingView from '../components/FixedKeyboardAvoidingView';
 import { GiftedChat } from 'react-native-gifted-chat';
 
 export default class Chat extends React.Component {
@@ -41,19 +46,17 @@ export default class Chat extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {messages: [], groupId: '', name: '', momentId: ''};
+        this.state = {messages: [], groupId: '', name: '', momentId: '', showCameraRoll: false, photos: []};
     }
 
     componentDidMount() {
         const { params } = this.props.navigation.state;
-
-        this.setState({momentId: params.momentId, title: params.title});
-
+        this.setState({groupId: params.groupId, momentId: params.momentId, title: params.title});
+        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
         AsyncStorage.getItem('Scrapbook:UserToken')
             .then(token => {
                 if (!token) this.props.navigation.navigate('Login');
                 this.setState({token});
-                console.log("HERRO!");
                 this.getMessages(0);
 
                 AsyncStorage.getItem('Scrapbook:UserId')
@@ -63,6 +66,13 @@ export default class Chat extends React.Component {
             });
     }
 
+    componentWillUnmount () {
+        this.keyboardDidShowListener.remove();
+    }
+
+    _keyboardDidShow = () => {
+        this.setState({showCameraRoll: false})
+    }
 
     getMessages = (page) => {
         ScrapbookApi.getMessages(this.state.token, this.state.momentId, page)
@@ -86,6 +96,9 @@ export default class Chat extends React.Component {
                             name: msg.user.firstName + ' ' + msg.user.lastName,
                         }
                     };
+                    if(msg.photo){
+                        newMsg.image = msg.photo.urls[0];
+                    }
 
                     messages.push(newMsg);
                 }
@@ -98,14 +111,13 @@ export default class Chat extends React.Component {
         ScrapbookApi.sendMessage(this.state.token, this.state.momentId, text)
             .then(ApiUtils.checkStatus)
             .then((r) => {
-                console.log(r);
                 this.getMessages(0);
             })
             .catch(e => console.log(e));
     }
 
-    sendPhoto() {
-        ScrapbookApi.sendMessage(this.state.token, this.state.groupId, text, this.state.userId)
+    sendMessageAndPhoto = (text, photoId) => {
+        ScrapbookApi.sendMessage(this.state.token, this.state.momentId, text, photoId)
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 this.getMessages(0);
@@ -113,60 +125,83 @@ export default class Chat extends React.Component {
             .catch(e => console.log(e));
     }
 
+    setPhoto = (photos) => {
+        this.setState({photos});
+    }
+
     onSend = (messages=[]) => {
         for (message of messages){
-            this.sendMessage(message.text);
+            if(this.state.photos.length > 0){
+                ScrapbookApi.addPhoto(this.state.token, this.state.photos[0].uri, this.state.groupId, this.state.photos[0].type.split('/')[1])
+                    .then(ApiUtils.checkStatus)
+                    .then((r) => {return r.json()})
+                    .then((r) => {
+                        this.sendMessageAndPhoto(message.text, r._id)
+                    });
+                this.setState({photos:[], showCameraRoll: false});
+            } else {
+                this.sendMessage(message.text);
+            }
         }
+    }
+
+    renderActionButton = () => {
+        return (
+            <TouchableOpacity
+                style={styles.actionContainer}
+                onPress={()=> {Keyboard.dismiss(); this.setState({showCameraRoll: !this.state.showCameraRoll})}} >
+                <Ionicons
+                    name={this.state.showCameraRoll ? 'ios-close-circle-outline' : 'ios-add-circle-outline'}
+                    size={36}/>
+            </TouchableOpacity>
+        );
+    }
+
+    renderSendButton = (props) => {
+        if(props.text || this.state.photos.length > 0) {
+            return (
+                <TouchableOpacity
+                    style={styles.sendContainer}
+                    onPress={() => {
+                        props.onSend({text: (props.text ? props.text.trim() : '')}, true);
+                    }}
+                    accessibilityTraits="button" >
+                    <Ionicons
+                        name='ios-send-outline'
+                        size={36}/>
+                </TouchableOpacity>
+            );
+        }
+        return <View/>;
     }
 
     render() {
         return (
-            <GiftedChat
-              messages={this.state.messages}
-              onSend={this.onSend}
-              loadEarlier={true}
-              user={{
-                _id: this.state.userId,
-              }}
-            />
+            <FixedKeyboardAvoidingView behavior={'padding'} style={{flex:1}}>
+                <View style={{flex: 1}}>
+                    <GiftedChat
+                        messages={this.state.messages}
+                        onSend={this.onSend}
+                        loadEarlier={true}
+                        renderActions={this.renderActionButton}
+                        renderSend={this.renderSendButton}
+                        user={{
+                            _id: this.state.userId,
+                        }}
+                    />
+                </View>
+                { this.state.showCameraRoll &&
+                    <View style={{flex: 1}}>
+                        <CameraRollPicker
+                            maximum={1}
+                            selected={this.state.selected}
+                            imagesPerRow={4}
+                            callback={this.setPhoto}
+                        />
+                    </View>
+                }
+            </FixedKeyboardAvoidingView>
         );
-    }
-
-    _pickImage = async () => {
-        const {state} = this.props.navigation;
-
-        let pickerResult = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: false,
-            aspect: [4,3]
-        });
-        console.log(this.props);
-        this._handleImagePicked(this.state.token, pickerResult);
-    }
-
-    _handleImagePicked = async (token, pickerResult) => {
-        let uploadResponse, uploadResult;
-
-        try {
-            this.setState({uploading: true});
-
-            if (!pickerResult.cancelled) {
-                //console.log(this.props.navigation.state.params.id);
-                uploadResponse = await ScrapbookApi.addPhoto(token, pickerResult.uri, this.state.groupId, this.state.userId, "Name", "caption");
-                uploadResult = await uploadResponse.json();
-                this.setState({image: uploadResult.location});
-            }
-        } catch(e) {
-            //console.log({uploadResponse});
-            //console.log({uploadResult});
-            console.log({e});
-            alert('Upload failed, sorry :(');
-        } finally {
-            this.setState({uploading: false});
-        }
-    }
-
-    _takePhoto() {
-        console.log('Take photo');
     }
 }
 
@@ -175,5 +210,18 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         padding: 10,
+    },
+    actionContainer: {
+        width: 36,
+        height: 36,
+        marginLeft: 10,
+        marginBottom: 5,
+    },
+    sendContainer: {
+        width: 36,
+        height: 36,
+        marginLeft: 10,
+        marginBottom: 5,
+        justifyContent: 'flex-end',
     },
 });
