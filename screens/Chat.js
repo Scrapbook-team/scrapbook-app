@@ -22,7 +22,7 @@ import ScrapbookApi from '../api/ScrapbookApi';
 import { Ionicons } from '@exponent/vector-icons';
 import ApiUtils from '../utilities/ApiUtils';
 import FixedKeyboardAvoidingView from '../components/FixedKeyboardAvoidingView';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { Bubble, GiftedChat } from 'react-native-gifted-chat';
 
 export default class Chat extends React.Component {
 
@@ -157,6 +157,16 @@ export default class Chat extends React.Component {
         );
     }
 
+    renderBubble = (props) => {
+        if (props.currentMessage.image) {
+            return <Bubble {...props}
+                wrapperStyle = {{left: {alignSelf: 'stretch'}, right: {alignSelf: 'stretch'}}}
+                imageStyle = {{flex:1, width: null, height: 400, margin: 0}}
+                />
+        }
+        return <Bubble {...props} />
+    }
+
     renderSendButton = (props) => {
         if(props.text || this.state.photos.length > 0) {
             return (
@@ -185,6 +195,8 @@ export default class Chat extends React.Component {
                         loadEarlier={true}
                         renderActions={this.renderActionButton}
                         renderSend={this.renderSendButton}
+                        renderBubble={this.renderBubble}
+                        renderTime={()=>{}}
                         user={{
                             _id: this.state.userId,
                         }}
