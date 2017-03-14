@@ -8,6 +8,7 @@ import {
   View,
   AsyncStorage,
   Keyboard,
+  Image,
 } from 'react-native';
 import Exponent, {
   ImagePicker,
@@ -23,6 +24,8 @@ import { Ionicons } from '@exponent/vector-icons';
 import ApiUtils from '../utilities/ApiUtils';
 import FixedKeyboardAvoidingView from '../components/FixedKeyboardAvoidingView';
 import { Bubble, GiftedChat } from 'react-native-gifted-chat';
+import TimerMixin from 'react-timer-mixin';
+import reactMixin from 'react-mixin';
 
 export default class Chat extends React.Component {
 
@@ -46,7 +49,7 @@ export default class Chat extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {messages: [], groupId: '', name: '', momentId: '', showCameraRoll: false, photos: [], moment: {}};
+        this.state = {messages: [], groupId: '', name: '', momentId: '', showCameraRoll: false, photos: [], moment: {}, currentSlide: 0};
     }
 
     componentDidMount() {
@@ -59,6 +62,7 @@ export default class Chat extends React.Component {
                 this.setState({token});
                 this.getMessages(0);
                 this.getMoments();
+                this.startSlideshow();
 
                 AsyncStorage.getItem('Scrapbook:UserId')
                     .then(userId => {
@@ -82,6 +86,10 @@ export default class Chat extends React.Component {
                 return r.json();
             })
             .then((r) => {
+                r.urls = {};
+                r.photos.forEach((p)=>{
+                    r.urls[p.photo._id] = p.photo.urls[0];
+                });
                 r.photos = r.photos.map((p)=>{return {caption: p.caption, position: p.position, photo: p.photo._id}});
                 r.notes = r.notes.map((p)=>{return {text: p.text, position: p.position, user: p.user._id}});
                 this.setState({moment:r});
@@ -121,6 +129,12 @@ export default class Chat extends React.Component {
                 this.setState({messages})
             })
             .catch(e => console.log(e));
+    }
+
+    startSlideshow = () => {
+        this.setInterval(() => {
+            this.setState({currentSlide: (this.state.currentSlide + 1)%this.state.moment.photos.length});
+        }, 5000)
     }
 
     sendMessage = (text) => {
@@ -224,23 +238,39 @@ export default class Chat extends React.Component {
         return <View/>;
     }
 
+    renderChat = () => {
+        let chat = <GiftedChat
+            messages={this.state.messages}
+            onSend={this.onSend}
+            loadEarlier={true}
+            renderActions={this.renderActionButton}
+            renderSend={this.renderSendButton}
+            renderBubble={this.renderBubble}
+            renderTime={()=>{}}
+            user={{
+                _id: this.state.userId,
+            }}
+        />;
+        if(this.state.moment.photos && this.state.moment.photos.length>0) {
+            console.log("moment phoy"+this.state.moment.photos[0].photo);
+            chat = (
+                <Image
+                    source={{uri: this.state.moment.urls[this.state.moment.photos[this.state.currentSlide].photo]}}
+                    style={styles.backgroundImage}>
+                    <View style = {styles.backgroundContainer}>
+                        {chat}
+                    </View>
+                </Image>);
+        } else {
+            chat = <View>{chat}</View>;
+        }
+        return chat;
+    }
+
     render() {
         return (
             <FixedKeyboardAvoidingView behavior={'padding'} style={{flex:1}}>
-                <View style={{flex: 1}}>
-                    <GiftedChat
-                        messages={this.state.messages}
-                        onSend={this.onSend}
-                        loadEarlier={true}
-                        renderActions={this.renderActionButton}
-                        renderSend={this.renderSendButton}
-                        renderBubble={this.renderBubble}
-                        renderTime={()=>{}}
-                        user={{
-                            _id: this.state.userId,
-                        }}
-                    />
-                </View>
+                { this.renderChat() }
                 { this.state.showCameraRoll &&
                     <View style={{flex: 1}}>
                         <CameraRollPicker
@@ -259,7 +289,6 @@ export default class Chat extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         padding: 10,
     },
     actionContainer: {
@@ -275,4 +304,14 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         justifyContent: 'flex-end',
     },
+    backgroundContainer : {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,.3)',
+    },
+    backgroundImage : {
+        flex: 1,
+        resizeMode: 'cover',
+    },
 });
+
+reactMixin.onClass(Chat, TimerMixin);
