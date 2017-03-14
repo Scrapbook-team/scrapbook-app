@@ -46,7 +46,7 @@ export default class Chat extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {messages: [], groupId: '', name: '', momentId: '', showCameraRoll: false, photos: []};
+        this.state = {messages: [], groupId: '', name: '', momentId: '', showCameraRoll: false, photos: [], moment: {}};
     }
 
     componentDidMount() {
@@ -58,6 +58,7 @@ export default class Chat extends React.Component {
                 if (!token) this.props.navigation.navigate('Login');
                 this.setState({token});
                 this.getMessages(0);
+                this.getMoments();
 
                 AsyncStorage.getItem('Scrapbook:UserId')
                     .then(userId => {
@@ -72,6 +73,20 @@ export default class Chat extends React.Component {
 
     _keyboardDidShow = () => {
         this.setState({showCameraRoll: false})
+    }
+
+    getMoments = () => {
+        ScrapbookApi.getMoment(this.state.token, this.state.momentId)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                return r.json();
+            })
+            .then((r) => {
+                r.photos = r.photos.map((p)=>{return {caption: p.caption, position: p.position, photo: p.photo._id}});
+                r.notes = r.notes.map((p)=>{return {text: p.text, position: p.position, user: p.user._id}});
+                this.setState({moment:r});
+            }
+        );
     }
 
     getMessages = (page) => {
@@ -97,6 +112,7 @@ export default class Chat extends React.Component {
                         }
                     };
                     if(msg.photo){
+                        newMsg.photoId = msg.photo._id;
                         newMsg.image = msg.photo.urls[0];
                     }
 
@@ -121,6 +137,25 @@ export default class Chat extends React.Component {
             .then(ApiUtils.checkStatus)
             .then((r) => {
                 this.getMessages(0);
+            })
+            .catch(e => console.log(e));
+    }
+
+    addMessageToMoment = (props) => {
+        console.log('addingmsg' + JSON.stringify(this.state.moment));
+        let photos = this.state.moment.photos;
+        let notes = this.state.moment.notes;
+        if(props.currentMessage.image){
+            newPhoto = {photo: props.currentMessage.photoId, caption: (props.currentMessage.text || ''), position: this.state.moment.size};
+            photos = this.state.moment.photos.concat(newPhoto);
+        } else {
+            newNote = {text: props.currentMessage.text, user: props.currentMessage.user._id, position: this.state.moment.size};
+            notes = this.state.moment.notes.concat(newNote);
+        }
+        ScrapbookApi.updateMoment(this.state.token, this.state.momentId, photos, notes)
+            .then(ApiUtils.checkStatus)
+            .then((r) => {
+                this.getMoment();
             })
             .catch(e => console.log(e));
     }
@@ -162,9 +197,13 @@ export default class Chat extends React.Component {
             return <Bubble {...props}
                 wrapperStyle = {{left: {alignSelf: 'stretch'}, right: {alignSelf: 'stretch'}}}
                 imageStyle = {{flex:1, width: null, height: 400, margin: 0}}
+                onLongPress = {()=>this.addMessageToMoment(props)}
+                lightboxProps = {{onLongPress: ()=>this.addMessageToMoment(props)}}
                 />
         }
-        return <Bubble {...props} />
+        return <Bubble {...props}
+            onLongPress = {()=>this.addMessageToMoment(props)}
+            />
     }
 
     renderSendButton = (props) => {

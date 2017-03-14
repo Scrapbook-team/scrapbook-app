@@ -293,6 +293,23 @@ var ScrapbookApi = {
             },
         })
     },
+    updateMoment: function(token, momentId, photos=[], notes=[]) {
+        var body = {
+            photos,
+            notes,
+            size: (photos.length+notes.length),
+        }
+        console.log('updating moment with '+JSON.stringify(body));
+        return fetch(apiUrl + '/moments/' + momentId, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': token,
+            },
+            body: JSON.stringify(body),
+        })
+    },
 };
 
 export { ScrapbookApi as default };
